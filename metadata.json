@@ -1,0 +1,6 @@
+{
+  "name": "Supabase Studio Dashboard",
+  "description": "Personal Supabase management dashboard with Table Editor, SQL Workspace, Auth, Storage, Edge Functions, Realtime inspector, and Observability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
