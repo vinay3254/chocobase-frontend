@@ -43,7 +43,7 @@ export const SettingsView: React.FC = () => {
 
   const connectionStrings = {
     uri: `postgresql://${projectSettings.databaseUser}:[YOUR-PASSWORD]@${projectSettings.databaseHost}:${projectSettings.databasePort}/${projectSettings.databaseName}?sslmode=require`,
-    nodejs: `import { createClient } from '@supabase/supabase-js'\n\nconst supabase = createClient(\n  '${projectSettings.apiUrl}',\n  '${projectSettings.anonKey}'\n)`,
+    nodejs: `import { createClient } from '@chocobase/chocobase-js'\n\nconst client = createClient(\n  '${projectSettings.apiUrl}',\n  '${projectSettings.anonKey}'\n)`,
     prisma: `datasource db {\n  provider = "postgresql"\n  url      = "postgresql://${projectSettings.databaseUser}:[YOUR-PASSWORD]@${projectSettings.databaseHost}:${projectSettings.databasePort}/${projectSettings.databaseName}?sslmode=require&pgbouncer=true"\n}`,
     drizzle: `import { drizzle } from 'drizzle-orm/postgres-js'\nimport postgres from 'postgres'\n\nconst client = postgres('postgresql://${projectSettings.databaseUser}:[YOUR-PASSWORD]@${projectSettings.databaseHost}:${projectSettings.databasePort}/${projectSettings.databaseName}?sslmode=require')\nexport const db = drizzle(client)`,
     golang: `connStr := "postgresql://${projectSettings.databaseUser}:[YOUR-PASSWORD]@${projectSettings.databaseHost}:${projectSettings.databasePort}/${projectSettings.databaseName}?sslmode=require"\ndb, err := pgx.Connect(context.Background(), connStr)`,
