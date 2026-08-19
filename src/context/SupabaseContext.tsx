@@ -160,13 +160,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // User session & auth modal
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
     const saved = localStorage.getItem('chocobase_current_user');
-    return saved ? JSON.parse(saved) : {
-      id: 'usr-admin-1',
-      email: 'vinaygk219@gmail.com',
-      role: 'admin',
-      provider: 'email',
-      createdAt: new Date().toISOString()
-    };
+    return saved ? JSON.parse(saved) : null;
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup' | 'magic_link'>('signin');
@@ -201,7 +195,7 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const saved = localStorage.getItem('chocobase_storage_objects');
     return saved ? JSON.parse(saved) : INITIAL_STORAGE_OBJECTS;
   });
-  const [selectedBucketId, setSelectedBucketId] = useState<string>(storageBuckets[0]?.id || 'avatars');
+  const [selectedBucketId, setSelectedBucketId] = useState<string>(storageBuckets[0]?.id || 'public');
 
   const [edgeFunctions, setEdgeFunctions] = useState<EdgeFunction[]>(() => {
     const saved = localStorage.getItem('chocobase_edge_functions');
@@ -209,29 +203,11 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [selectedFunctionId, setSelectedFunctionId] = useState<string | null>(edgeFunctions[0]?.id || null);
 
-  const [realtimeMessages, setRealtimeMessages] = useState<RealtimeMessage[]>([
-    {
-      id: 'rt-msg-1',
-      timestamp: new Date(Date.now() - 40000).toISOString(),
-      topic: 'realtime:public:posts',
-      event: 'INSERT',
-      payload: { id: '11111111-2222-3333-4444-555555555504', title: 'Design Systems for Developer Tooling' },
-      sender: 'server-postgres-wal'
-    },
-    {
-      id: 'rt-msg-2',
-      timestamp: new Date(Date.now() - 20000).toISOString(),
-      topic: 'realtime:public:comments',
-      event: 'INSERT',
-      payload: { post_id: '11111111-2222-3333-4444-555555555502', body: 'Remember to always index columns...' },
-      sender: 'server-postgres-wal'
-    }
-  ]);
+  const [realtimeMessages, setRealtimeMessages] = useState<RealtimeMessage[]>([]);
 
   const [realtimeChannels] = useState<RealtimeChannel[]>([
-    { name: 'realtime:public:posts', subscribersCount: 14, mode: 'postgres_changes', filter: 'published=eq.true', createdAt: '2025-02-18T00:00:00Z' },
-    { name: 'room:collaborative-editor', subscribersCount: 5, mode: 'presence', createdAt: '2025-02-18T02:30:00Z' },
-    { name: 'chat:general-broadcast', subscribersCount: 22, mode: 'broadcast', createdAt: '2025-02-18T04:15:00Z' }
+    { name: 'realtime:public:posts', subscribersCount: 0, mode: 'postgres_changes', filter: 'published=eq.true', createdAt: new Date().toISOString() },
+    { name: 'chat:general-broadcast', subscribersCount: 0, mode: 'broadcast', createdAt: new Date().toISOString() }
   ]);
 
   const [metrics, setMetrics] = useState<DatabaseMetrics>(INITIAL_DATABASE_METRICS);

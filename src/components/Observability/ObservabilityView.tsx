@@ -72,33 +72,9 @@ export const ObservabilityView: React.FC = () => {
     };
   }, []);
 
-  // Synthesize logs from real-time events, edge function logs, and simulated postgres WAL telemetry
+  // Real telemetry logs from live backend audit entries, edge function logs, and realtime message stream
   const baseLogs: TelemetryLog[] = [
     ...liveLogs,
-    {
-      id: 'log-seed-1',
-      timestamp: new Date(Date.now() - 12000).toISOString(),
-      service: 'database',
-      level: 'info',
-      message: 'checkpoint complete: wrote 42 buffers (0.1%); 0 WAL file(s) added, 0 removed, 1 recycled',
-      metadata: { duration_ms: 12, buffers: 42, lsn: '0/16B2D40' }
-    },
-    {
-      id: 'log-seed-2',
-      timestamp: new Date(Date.now() - 25000).toISOString(),
-      service: 'auth',
-      level: 'info',
-      message: 'GoTrue: token issued for subject d3b07384-d113-4a1a-9f5b-568b248a8001 via grant_type=password',
-      metadata: { user_id: 'd3b07384-d113-4a1a-9f5b-568b248a8001', role: 'authenticated' }
-    },
-    {
-      id: 'log-seed-3',
-      timestamp: new Date(Date.now() - 45000).toISOString(),
-      service: 'storage',
-      level: 'info',
-      message: 'Storage API: S3 multipart upload completed for bucket "avatars" (142.8 KB)',
-      metadata: { bucket: 'avatars', object_key: 'uploads/developer_avatar.png' }
-    },
     ...edgeFunctions.flatMap(f => f.recentLogs.map(l => ({
       id: l.id,
       timestamp: l.timestamp,
