@@ -19,6 +19,8 @@ import {
   Activity
 } from 'lucide-react';
 import { useSupabase } from '../context/SupabaseContext';
+import { Breadcrumbs } from './Navigation/Breadcrumbs';
+import { ThemeSwitcher } from './Navigation/ThemeSwitcher';
 
 export const Header: React.FC = () => {
   const { 
@@ -69,16 +71,12 @@ export const Header: React.FC = () => {
       id="supabase-top-header"
       className="h-16 bg-[#FFFDF9] border-b border-[#E8DDD2] flex items-center justify-between px-6 text-[#2B1D20] select-none relative z-20"
     >
-      {/* Left: Breadcrumbs & View Title */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-xs text-[#685559]">
-          <span className="font-semibold text-sm text-[#2B1D20]">{projectSettings.name}</span>
-          <span className="text-[#C2B3B5]">/</span>
-          <span className="text-[#685559] font-medium">{viewTitles[activeView] || activeView}</span>
-        </div>
+      {/* Left: Dynamic Breadcrumb Navigation Bar */}
+      <div className="flex items-center gap-3 min-w-0 flex-1 sm:flex-initial">
+        <Breadcrumbs />
 
         {/* Live health pill */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F2] border border-[#E8DDD2] text-[10px] font-semibold text-[#685559] uppercase tracking-wider">
+        <div className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FAF7F2] border border-[#E8DDD2] text-[10px] font-semibold text-[#685559] uppercase tracking-wider flex-shrink-0">
           <Activity className="w-3 h-3 text-[#286E4F]" />
           <span>{metrics.tps} TPS</span>
           <span className="text-[#C2B3B5]">•</span>
@@ -143,6 +141,9 @@ export const Header: React.FC = () => {
           </span>
         </button>
 
+        {/* Theme Switcher */}
+        <ThemeSwitcher />
+
         {/* User profile avatar & dropdown */}
         <div className="relative" ref={userMenuRef}>
           <button
@@ -160,6 +161,10 @@ export const Header: React.FC = () => {
                   <div className="p-2 border-b border-[#E8DDD2] bg-[#FAF7F2] rounded-lg mb-1">
                     <div className="font-bold truncate text-[#2B1D20]">{currentUser.email}</div>
                     <div className="text-[10px] text-[#8B1E3F] font-mono capitalize">Role: {currentUser.role}</div>
+                  </div>
+                  <div className="p-1.5 border-b border-[#E8DDD2] flex items-center justify-between mb-1">
+                    <span className="text-[11px] text-[#685559] font-medium">Theme</span>
+                    <ThemeSwitcher variant="segmented" />
                   </div>
                   <button
                     onClick={() => {

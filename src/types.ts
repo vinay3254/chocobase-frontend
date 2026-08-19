@@ -13,6 +13,8 @@ export type ActiveView =
   | 'observability'
   | 'settings';
 
+export type ThemeMode = 'warm-ivory' | 'midnight';
+
 export interface CurrentUser {
   id: string;
   email: string;

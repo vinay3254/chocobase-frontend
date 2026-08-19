@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useSupabase } from '../../context/SupabaseContext';
 
 interface RealtimeWave3DProps {
   className?: string;
@@ -6,6 +7,8 @@ interface RealtimeWave3DProps {
 
 export const RealtimeWave3D: React.FC<RealtimeWave3DProps> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { theme } = useSupabase();
+  const isDark = theme === 'midnight';
   const [channelFrequency, setChannelFrequency] = useState(48);
 
   useEffect(() => {
@@ -90,7 +93,9 @@ export const RealtimeWave3D: React.FC<RealtimeWave3DProps> = ({ className }) => 
           if (c === 0) ctx.moveTo(p.x, p.y);
           else ctx.lineTo(p.x, p.y);
         }
-        ctx.strokeStyle = r % 2 === 0 ? 'rgba(139, 30, 63, 0.45)' : 'rgba(104, 85, 89, 0.25)';
+        ctx.strokeStyle = r % 2 === 0 
+          ? (isDark ? 'rgba(255, 90, 132, 0.55)' : 'rgba(139, 30, 63, 0.45)') 
+          : (isDark ? 'rgba(184, 168, 172, 0.35)' : 'rgba(104, 85, 89, 0.25)');
         ctx.lineWidth = 1;
         ctx.stroke();
       }
@@ -103,7 +108,7 @@ export const RealtimeWave3D: React.FC<RealtimeWave3DProps> = ({ className }) => 
           if (r === 0) ctx.moveTo(p.x, p.y);
           else ctx.lineTo(p.x, p.y);
         }
-        ctx.strokeStyle = 'rgba(232, 221, 210, 0.7)';
+        ctx.strokeStyle = isDark ? 'rgba(84, 28, 41, 0.5)' : 'rgba(232, 221, 210, 0.7)';
         ctx.lineWidth = 0.8;
         ctx.stroke();
       }
@@ -115,7 +120,7 @@ export const RealtimeWave3D: React.FC<RealtimeWave3DProps> = ({ className }) => 
           if (p.origY < -10) {
             ctx.beginPath();
             ctx.arc(p.x, p.y, 2 * p.fov, 0, Math.PI * 2);
-            ctx.fillStyle = '#8B1E3F';
+            ctx.fillStyle = isDark ? '#FF5A84' : '#8B1E3F';
             ctx.fill();
           }
         }
@@ -130,7 +135,7 @@ export const RealtimeWave3D: React.FC<RealtimeWave3DProps> = ({ className }) => 
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isDark]);
 
   return (
     <div className={`relative flex flex-col items-center ${className || ''}`}>

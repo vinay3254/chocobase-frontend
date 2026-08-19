@@ -16,7 +16,8 @@ import {
   RealtimeChannel,
   RlsPolicy,
   ColumnDefinition,
-  CurrentUser
+  CurrentUser,
+  ThemeMode
 } from '../types';
 import { 
   INITIAL_PROJECT_SETTINGS, 
@@ -117,6 +118,9 @@ interface SupabaseContextType {
   setRemoteAnonKey: (key: string) => void;
   notification: { message: string; type: 'success' | 'info' | 'error' } | null;
   showNotification: (message: string, type?: 'success' | 'info' | 'error') => void;
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
+  toggleTheme: () => void;
 }
 
 const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
@@ -125,6 +129,33 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [activeView, setActiveView] = useState<ActiveView>('landing');
   const [selectedSchema, setSelectedSchema] = useState<DatabaseSchemaName>('public');
   const [selectedTableId, setSelectedTableId] = useState<string | null>('tbl-posts');
+
+  // Theme State (Warm Ivory vs. Midnight Dark)
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    const saved = localStorage.getItem('chocobase_theme');
+    if (saved === 'midnight' || saved === 'warm-ivory') {
+      return saved as ThemeMode;
+    }
+    return 'warm-ivory';
+  });
+
+  const setTheme = (newTheme: ThemeMode) => {
+    setThemeState(newTheme);
+    localStorage.setItem('chocobase_theme', newTheme);
+    document.documentElement.classList.toggle('theme-midnight', newTheme === 'midnight');
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'warm-ivory' ? 'midnight' : 'warm-ivory';
+    setTheme(nextTheme);
+    showNotification(`Switched to ${nextTheme === 'midnight' ? 'Midnight Dark' : 'Warm Ivory'} theme`, 'info');
+  };
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-midnight', theme === 'midnight');
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   // User session & auth modal
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() => {
@@ -753,6 +784,9 @@ serve(async (req) => {
         setRemoteAnonKey,
         notification,
         showNotification,
+        theme,
+        setTheme,
+        toggleTheme,
       }}
     >
       {children}

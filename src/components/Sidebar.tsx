@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useSupabase } from '../context/SupabaseContext';
 import { ActiveView } from '../types';
+import { ThemeSwitcher } from './Navigation/ThemeSwitcher';
 
 interface NavItem {
   id: ActiveView;
@@ -175,8 +176,14 @@ export const Sidebar: React.FC = () => {
         </section>
       </div>
 
-      {/* Connection Mode Footer Card */}
-      <div className="p-3.5 border-t border-[#E8DDD2] bg-[#FAF7F2]">
+      {/* Connection Mode & Theme Switcher Footer Card */}
+      <div className="p-3.5 border-t border-[#E8DDD2] bg-[#FAF7F2] space-y-2">
+        {/* Theme Switcher Toggle */}
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[11px] font-medium text-[#685559]">Theme</span>
+          <ThemeSwitcher variant="segmented" className="w-full justify-between" />
+        </div>
+
         <button
           id="btn-connection-status"
           onClick={() => setIsConnectModalOpen(true)}

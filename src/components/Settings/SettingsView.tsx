@@ -11,12 +11,15 @@ import {
   ShieldAlert, 
   Globe, 
   RotateCcw,
-  CheckCircle2
+  CheckCircle2,
+  Sun,
+  Moon,
+  Sparkles
 } from 'lucide-react';
 import { useSupabase } from '../../context/SupabaseContext';
 
 export const SettingsView: React.FC = () => {
-  const { projectSettings, updateProjectSettings, showNotification } = useSupabase();
+  const { projectSettings, updateProjectSettings, showNotification, theme, setTheme } = useSupabase();
   const [activeTab, setActiveTab] = useState<'general' | 'api' | 'database' | 'danger'>('api');
   const [showServiceKey, setShowServiceKey] = useState(false);
   const [showJwtSecret, setShowJwtSecret] = useState(false);
@@ -271,46 +274,116 @@ export const SettingsView: React.FC = () => {
 
       {/* General Tab */}
       {activeTab === 'general' && (
-        <form onSubmit={handleSaveGeneral} className="p-5 rounded-xl bg-[#FFFDF9] border border-[#E8DDD2] space-y-4 max-w-2xl shadow-xs">
-          <div>
-            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Project Name</label>
-            <input
-              type="text"
-              value={projectNameInput}
-              onChange={(e) => setProjectNameInput(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
-            />
+        <div className="space-y-6 max-w-2xl">
+          {/* Visual Theme Appearance */}
+          <div className="p-5 rounded-xl bg-[#FFFDF9] border border-[#E8DDD2] space-y-3 shadow-xs">
+            <div>
+              <h3 className="text-xs font-semibold text-[#2B1D20]">Workspace Appearance & Theme</h3>
+              <p className="text-[11px] text-[#685559]">Choose your preferred interface theme for Chocobase Studio</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Warm Ivory Theme Card */}
+              <button
+                type="button"
+                onClick={() => setTheme('warm-ivory')}
+                className={`p-3.5 rounded-xl border text-left transition-all ${
+                  theme === 'warm-ivory'
+                    ? 'border-[#8B1E3F] ring-2 ring-[#8B1E3F]/20 bg-[#FAF7F2] shadow-2xs'
+                    : 'border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#FAF7F2]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-[#FFFDF9] border border-[#E8DDD2] flex items-center justify-center text-[#D97706]">
+                      <Sun className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-xs font-semibold text-[#2B1D20]">Warm Ivory (Default)</span>
+                  </div>
+                  {theme === 'warm-ivory' && (
+                    <CheckCircle2 className="w-4 h-4 text-[#8B1E3F]" />
+                  )}
+                </div>
+                <div className="h-10 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] p-2 flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#8B1E3F]" />
+                  <div className="w-8 h-2 rounded-full bg-[#E8DDD2]" />
+                  <div className="w-12 h-2 rounded-full bg-[#FAF7F2] border border-[#E8DDD2]" />
+                </div>
+                <p className="text-[10px] text-[#685559] mt-2">Refined luxury warm ivory with deep maroon accents</p>
+              </button>
+
+              {/* Midnight Dark Theme Card */}
+              <button
+                type="button"
+                onClick={() => setTheme('midnight')}
+                className={`p-3.5 rounded-xl border text-left transition-all ${
+                  theme === 'midnight'
+                    ? 'border-[#E0486D] ring-2 ring-[#E0486D]/20 bg-[#181517] shadow-2xs'
+                    : 'border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#FAF7F2]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-lg bg-[#262124] border border-[#332B30] flex items-center justify-center text-[#FF5A84]">
+                      <Moon className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-xs font-semibold text-[#2B1D20]">Midnight Dark</span>
+                  </div>
+                  {theme === 'midnight' && (
+                    <CheckCircle2 className="w-4 h-4 text-[#E0486D]" />
+                  )}
+                </div>
+                <div className="h-10 rounded-lg bg-[#0F0D0E] border border-[#332B30] p-2 flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5A84]" />
+                  <div className="w-8 h-2 rounded-full bg-[#332B30]" />
+                  <div className="w-12 h-2 rounded-full bg-[#181517] border border-[#332B30]" />
+                </div>
+                <p className="text-[10px] text-[#685559] mt-2">Deep obsidian luxury midnight with radiant ruby highlights</p>
+              </button>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Project Reference ID</label>
-            <input
-              type="text"
-              readOnly
-              value={projectSettings.id}
-              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs font-mono text-[#685559]"
-            />
-          </div>
+          <form onSubmit={handleSaveGeneral} className="p-5 rounded-xl bg-[#FFFDF9] border border-[#E8DDD2] space-y-4 shadow-xs">
+            <div>
+              <label className="block text-xs font-medium text-[#2B1D20] mb-1">Project Name</label>
+              <input
+                type="text"
+                value={projectNameInput}
+                onChange={(e) => setProjectNameInput(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Compute Region</label>
-            <input
-              type="text"
-              readOnly
-              value={`${projectSettings.region} (${projectSettings.tier} Tier)`}
-              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs font-mono text-[#685559]"
-            />
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-[#2B1D20] mb-1">Project Reference ID</label>
+              <input
+                type="text"
+                readOnly
+                value={projectSettings.id}
+                className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs font-mono text-[#685559]"
+              />
+            </div>
 
-          <div className="pt-2 flex justify-end">
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-colors shadow-xs"
-            >
-              Save Project Changes
-            </button>
-          </div>
-        </form>
+            <div>
+              <label className="block text-xs font-medium text-[#2B1D20] mb-1">Compute Region</label>
+              <input
+                type="text"
+                readOnly
+                value={`${projectSettings.region} (${projectSettings.tier} Tier)`}
+                className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs font-mono text-[#685559]"
+              />
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-colors shadow-xs"
+              >
+                Save Project Changes
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
       {/* Danger Zone */}

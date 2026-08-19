@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useSupabase } from '../../context/SupabaseContext';
 import { TableDefinition, ColumnDefinition, ColumnType, TableRowData, RlsPolicy } from '../../types';
+import { VisualFilterBar, FilterCondition, FilterOperator } from './VisualFilterBar';
 
 export const TableEditorView: React.FC = () => {
   const { 
@@ -48,9 +49,8 @@ export const TableEditorView: React.FC = () => {
 
   const [tableSearch, setTableSearch] = useState('');
   const [dataSearch, setDataSearch] = useState('');
-  const [filterColumn, setFilterColumn] = useState<string>('all');
-  const [filterOperator, setFilterOperator] = useState<'contains' | 'equals' | 'is_true' | 'is_false'>('contains');
-  const [filterValue, setFilterValue] = useState('');
+  const [filterConditions, setFilterConditions] = useState<FilterCondition[]>([]);
+  const [matchMode, setMatchMode] = useState<'all' | 'any'>('all');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -72,13 +72,13 @@ export const TableEditorView: React.FC = () => {
     return tableData[currentTable.id] || [];
   }, [tableData, currentTable]);
 
-  // Filtering and Sorting
+  // Comprehensive Filtering and Sorting
   const processedRows = useMemo(() => {
     let result = [...rows];
 
-    // Global text search or specific column filter
+    // 1. Global fuzzy text search across all columns
     if (dataSearch.trim()) {
-      const q = dataSearch.toLowerCase();
+      const q = dataSearch.toLowerCase().trim();
       result = result.filter(r => 
         Object.values(r).some(val => 
           val !== null && val !== undefined && String(val).toLowerCase().includes(q)
@@ -86,17 +86,72 @@ export const TableEditorView: React.FC = () => {
       );
     }
 
-    if (filterValue.trim() && filterColumn !== 'all') {
-      const val = filterValue.toLowerCase();
+    // 2. Visual column filter conditions evaluation
+    const activeConditions = filterConditions.filter(c => c.enabled);
+    if (activeConditions.length > 0) {
       result = result.filter(r => {
-        const cell = r[filterColumn];
-        if (cell === null || cell === undefined) return false;
-        if (filterOperator === 'equals') return String(cell).toLowerCase() === val;
-        return String(cell).toLowerCase().includes(val);
+        const evaluateCondition = (cond: FilterCondition): boolean => {
+          const cell = r[cond.column];
+          const val = (cond.value || '').trim().toLowerCase();
+
+          if (cond.operator === 'is_null') {
+            return cell === null || cell === undefined || cell === '';
+          }
+          if (cond.operator === 'is_not_null') {
+            return cell !== null && cell !== undefined && cell !== '';
+          }
+          if (cond.operator === 'is_true') {
+            return cell === true || cell === 'true' || cell === 1;
+          }
+          if (cond.operator === 'is_false') {
+            return cell === false || cell === 'false' || cell === 0;
+          }
+
+          if (cell === null || cell === undefined) return false;
+
+          const cellStr = String(cell).toLowerCase();
+
+          if (cond.operator === 'contains') {
+            return cellStr.includes(val);
+          }
+          if (cond.operator === 'does_not_contain') {
+            return !cellStr.includes(val);
+          }
+          if (cond.operator === 'equals') {
+            return cellStr === val;
+          }
+          if (cond.operator === 'not_equals') {
+            return cellStr !== val;
+          }
+          if (cond.operator === 'starts_with') {
+            return cellStr.startsWith(val);
+          }
+          if (cond.operator === 'ends_with') {
+            return cellStr.endsWith(val);
+          }
+
+          // Numeric comparisons
+          const cellNum = Number(cell);
+          const valNum = Number(cond.value);
+          if (!isNaN(cellNum) && !isNaN(valNum)) {
+            if (cond.operator === 'greater_than') return cellNum > valNum;
+            if (cond.operator === 'less_than') return cellNum < valNum;
+            if (cond.operator === 'greater_or_equal') return cellNum >= valNum;
+            if (cond.operator === 'less_or_equal') return cellNum <= valNum;
+          }
+
+          return true;
+        };
+
+        if (matchMode === 'all') {
+          return activeConditions.every(evaluateCondition);
+        } else {
+          return activeConditions.some(evaluateCondition);
+        }
       });
     }
 
-    // Sort
+    // 3. Sorting
     if (sortColumn) {
       result.sort((a, b) => {
         const valA = a[sortColumn];
@@ -113,7 +168,7 @@ export const TableEditorView: React.FC = () => {
     }
 
     return result;
-  }, [rows, dataSearch, filterColumn, filterValue, filterOperator, sortColumn, sortDirection]);
+  }, [rows, dataSearch, filterConditions, matchMode, sortColumn, sortDirection]);
 
   // Inline editing handler
   const handleStartEdit = (rowId: string, colName: string, initialVal: any) => {
@@ -173,33 +228,33 @@ export const TableEditorView: React.FC = () => {
   };
 
   return (
-    <div id="table-editor-view" className="flex h-[calc(100vh-4rem)] bg-[#fcfcfc] overflow-hidden">
+    <div id="table-editor-view" className="flex h-[calc(100vh-4rem)] bg-[#FAF7F2] overflow-hidden text-[#2B1D20]">
       {/* Left Sidebar: Schema Tables List */}
-      <div className="w-64 border-r border-[#ececec] bg-white flex flex-col flex-shrink-0">
-        <div className="p-3 border-b border-[#ececec] space-y-2.5">
+      <div className="w-64 border-r border-[#E8DDD2] bg-[#FFFDF9] flex flex-col flex-shrink-0">
+        <div className="p-3 border-b border-[#E8DDD2] space-y-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#333]">
-              <Layers className="w-3.5 h-3.5 text-[#3ecf8e]" />
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#2B1D20]">
+              <Layers className="w-3.5 h-3.5 text-[#8B1E3F]" />
               <span>Tables ({tables.length})</span>
             </div>
             <button
               id="btn-create-table-modal"
               onClick={() => setIsNewTableModalOpen(true)}
-              className="p-1 rounded border border-[#ececec] hover:bg-[#f9f9f9] text-[#666] hover:text-[#1a1a1a] transition-colors"
+              className="p-1 rounded-md border border-[#E8DDD2] hover:bg-[#FAF7F2] text-[#685559] hover:text-[#2B1D20] transition-colors shadow-2xs"
               title="Create new database table"
             >
-              <Plus className="w-3.5 h-3.5 text-[#3ecf8e]" />
+              <Plus className="w-3.5 h-3.5 text-[#8B1E3F]" />
             </button>
           </div>
 
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-[#999]" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-[#9B888C]" />
             <input
               type="text"
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
               placeholder="Filter tables..."
-              className="w-full pl-8 pr-2.5 py-1 rounded-md bg-[#f9f9f9] border border-[#ececec] text-xs text-[#333] placeholder-[#999] focus:outline-hidden focus:border-[#3ecf8e]"
+              className="w-full pl-8 pr-2.5 py-1 rounded-md bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] placeholder-[#9B888C] focus:outline-hidden focus:border-[#8B1E3F]"
             />
           </div>
         </div>
@@ -218,19 +273,19 @@ export const TableEditorView: React.FC = () => {
                   onClick={() => setSelectedTableId(table.id)}
                   className={`w-full flex items-center justify-between px-2.5 py-2 rounded-md text-xs transition-colors ${
                     isSelected 
-                      ? 'bg-[#f9f9f9] text-[#3ecf8e] font-semibold border-none' 
-                      : 'text-[#666] hover:text-[#1a1a1a] hover:bg-[#f9f9f9]'
+                      ? 'bg-[#FDF0F3] text-[#8B1E3F] font-semibold border-l-2 border-[#8B1E3F]' 
+                      : 'text-[#685559] hover:text-[#2B1D20] hover:bg-[#FAF7F2]'
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <Table className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-[#3ecf8e]' : 'text-[#999]'}`} />
-                    <span className="truncate">{table.name}</span>
+                    <Table className={`w-3.5 h-3.5 flex-shrink-0 ${isSelected ? 'text-[#8B1E3F]' : 'text-[#9B888C]'}`} />
+                    <span className="truncate font-mono">{table.name}</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {table.rlsEnabled && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#3ecf8e]" title="RLS Enabled" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#286E4F]" title="RLS Enabled" />
                     )}
-                    <span className="font-mono text-[10px] text-[#999]">{count}</span>
+                    <span className="font-mono text-[10px] text-[#9B888C]">{count}</span>
                   </div>
                 </button>
               );
@@ -239,29 +294,29 @@ export const TableEditorView: React.FC = () => {
       </div>
 
       {/* Main Content: Table Explorer Grid */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#fcfcfc]">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#FAF7F2]">
         {/* Top Action Bar */}
         {currentTable && (
-          <div className="p-3.5 border-b border-[#ececec] bg-white flex flex-wrap items-center justify-between gap-3">
+          <div className="p-3.5 border-b border-[#E8DDD2] bg-[#FFFDF9] flex flex-wrap items-center justify-between gap-3 shadow-2xs">
             <div className="flex items-center gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold text-[#1a1a1a] font-mono">{currentTable.name}</h2>
+                  <h2 className="text-sm font-bold text-[#2B1D20] font-mono">{currentTable.name}</h2>
                   <button
                     id="btn-toggle-rls-drawer"
                     onClick={() => setIsPolicyDrawerOpen(true)}
                     className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
                       currentTable.rlsEnabled
-                        ? 'bg-[#f0fdf4] text-[#15803d] border-[#bbf7d0] hover:bg-[#dcfce7]'
-                        : 'bg-[#fffbeb] text-[#b45309] border-[#fde68a] hover:bg-[#fef3c7]'
+                        ? 'bg-[#EFF7F3] text-[#286E4F] border-[#C4E6D5] hover:bg-[#E2F2E9]'
+                        : 'bg-[#FFF8E6] text-[#B87A00] border-[#FCE199] hover:bg-[#FFF3D1]'
                     }`}
                   >
-                    {currentTable.rlsEnabled ? <ShieldCheck className="w-3 h-3 text-[#15803d]" /> : <ShieldAlert className="w-3 h-3 text-[#b45309]" />}
+                    {currentTable.rlsEnabled ? <ShieldCheck className="w-3 h-3 text-[#286E4F]" /> : <ShieldAlert className="w-3 h-3 text-[#B87A00]" />}
                     <span>{currentTable.rlsEnabled ? `RLS Active (${currentTable.policies.length} policies)` : 'RLS Disabled'}</span>
                   </button>
                 </div>
                 {currentTable.comment && (
-                  <p className="text-[11px] text-[#666] mt-0.5">{currentTable.comment}</p>
+                  <p className="text-[11px] text-[#685559] mt-0.5">{currentTable.comment}</p>
                 )}
               </div>
             </div>
@@ -271,16 +326,16 @@ export const TableEditorView: React.FC = () => {
               <button
                 id="btn-add-column-modal"
                 onClick={() => setIsAddColumnModalOpen(true)}
-                className="px-3 py-1.5 rounded-md border border-[#ececec] hover:bg-[#f9f9f9] text-xs font-medium text-[#333] flex items-center gap-1.5 transition-colors shadow-2xs"
+                className="px-3 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#FAF7F2] text-xs font-medium text-[#2B1D20] flex items-center gap-1.5 transition-colors shadow-2xs"
               >
-                <Columns className="w-3.5 h-3.5 text-[#666]" />
+                <Columns className="w-3.5 h-3.5 text-[#685559]" />
                 <span>Add Column</span>
               </button>
 
               <button
                 id="btn-insert-row-modal"
                 onClick={() => setIsInsertModalOpen(true)}
-                className="px-3 py-1.5 rounded-md bg-[#3ecf8e] hover:bg-[#34b27b] text-xs font-medium text-white flex items-center gap-1.5 transition-colors shadow-xs"
+                className="px-3 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-medium text-white flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Insert Row</span>
@@ -288,22 +343,22 @@ export const TableEditorView: React.FC = () => {
 
               <div className="relative group">
                 <button
-                  className="px-3 py-1.5 rounded-md border border-[#ececec] hover:bg-[#f9f9f9] text-xs font-medium text-[#333] flex items-center gap-1.5 transition-colors shadow-2xs"
+                  className="px-3 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#FAF7F2] text-xs font-medium text-[#2B1D20] flex items-center gap-1.5 transition-colors shadow-2xs"
                 >
-                  <Download className="w-3.5 h-3.5 text-[#666]" />
+                  <Download className="w-3.5 h-3.5 text-[#685559]" />
                   <span className="hidden sm:inline">Export</span>
-                  <ChevronDown className="w-3 h-3 text-[#999]" />
+                  <ChevronDown className="w-3 h-3 text-[#9B888C]" />
                 </button>
-                <div className="absolute right-0 mt-1 w-36 bg-white border border-[#ececec] rounded-lg shadow-lg py-1 hidden group-hover:block z-30">
+                <div className="absolute right-0 mt-1 w-36 bg-[#FFFDF9] border border-[#E8DDD2] rounded-lg shadow-lg py-1 hidden group-hover:block z-30">
                   <button
                     onClick={exportAsCsv}
-                    className="w-full text-left px-3 py-1.5 text-xs text-[#333] hover:bg-[#f9f9f9]"
+                    className="w-full text-left px-3 py-1.5 text-xs text-[#2B1D20] hover:bg-[#FAF7F2]"
                   >
                     Export as CSV
                   </button>
                   <button
                     onClick={exportAsJson}
-                    className="w-full text-left px-3 py-1.5 text-xs text-[#333] hover:bg-[#f9f9f9]"
+                    className="w-full text-left px-3 py-1.5 text-xs text-[#2B1D20] hover:bg-[#FAF7F2]"
                   >
                     Export as JSON
                   </button>
@@ -313,48 +368,26 @@ export const TableEditorView: React.FC = () => {
           </div>
         )}
 
-        {/* Filter & Search Bar */}
-        <div className="px-3.5 py-2 border-b border-[#ececec] bg-[#fafafa] flex flex-wrap items-center justify-between gap-2.5 text-xs">
-          <div className="flex items-center gap-2 flex-1 max-w-xl">
-            <div className="relative flex-1">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-[#999]" />
-              <input
-                type="text"
-                value={dataSearch}
-                onChange={(e) => setDataSearch(e.target.value)}
-                placeholder="Search records in active table..."
-                className="w-full pl-8 pr-2.5 py-1 rounded-md bg-white border border-[#ececec] text-xs text-[#333] placeholder-[#999] focus:outline-hidden focus:border-[#3ecf8e]"
-              />
-            </div>
-
-            {/* Column specific filter */}
-            <select
-              value={filterColumn}
-              onChange={(e) => setFilterColumn(e.target.value)}
-              className="bg-white border border-[#ececec] text-[#333] py-1 px-2.5 rounded-md text-xs focus:outline-hidden focus:border-[#3ecf8e]"
-            >
-              <option value="all">All Columns</option>
-              {currentTable?.columns.map(c => (
-                <option key={c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2 text-[#666] text-[11px] font-mono">
-            <span>{processedRows.length} of {rows.length} rows</span>
-            {sortColumn && (
-              <span className="text-[#15803d] bg-[#f0fdf4] px-1.5 py-0.5 rounded border border-[#bbf7d0]">
-                Sorted by {sortColumn} ({sortDirection})
-              </span>
-            )}
-          </div>
-        </div>
+        {/* Visual Filter Bar Component */}
+        {currentTable && (
+          <VisualFilterBar
+            columns={currentTable.columns}
+            conditions={filterConditions}
+            matchMode={matchMode}
+            onConditionsChange={setFilterConditions}
+            onMatchModeChange={setMatchMode}
+            totalRows={rows.length}
+            filteredRowsCount={processedRows.length}
+            dataSearch={dataSearch}
+            onDataSearchChange={setDataSearch}
+          />
+        )}
 
         {/* Data Grid */}
-        <div className="flex-1 overflow-auto bg-white">
+        <div className="flex-1 overflow-auto bg-[#FFFDF9]">
           {currentTable && (
             <table className="w-full border-collapse text-left text-xs font-mono select-text">
-              <thead className="sticky top-0 z-10 bg-[#f9f9f9] border-b border-[#ececec] text-[#666]">
+              <thead className="sticky top-0 z-10 bg-[#FAF7F2] border-b border-[#E8DDD2] text-[#685559]">
                 <tr>
                   <th className="w-10 px-3 py-2 text-center text-[#999] border-r border-[#ececec]">#</th>
                   {currentTable.columns.map((col) => {
@@ -370,13 +403,13 @@ export const TableEditorView: React.FC = () => {
                             setSortDirection('asc');
                           }
                         }}
-                        className="px-3.5 py-2.5 font-bold text-[#666] text-[11px] uppercase tracking-wider border-r border-[#ececec] whitespace-nowrap hover:bg-[#f3f4f6] cursor-pointer transition-colors"
+                        className="px-3.5 py-2.5 font-bold text-[#685559] text-[11px] uppercase tracking-wider border-r border-[#E8DDD2] whitespace-nowrap hover:bg-[#FAF7F2] cursor-pointer transition-colors"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-1.5">
                             {col.isPrimary && <Key className="w-3 h-3 text-[#8B1E3F]" />}
-                            <span>{col.name}</span>
-                            <span className="text-[10px] text-[#999] font-normal lowercase">({col.type})</span>
+                            <span className="text-[#2B1D20]">{col.name}</span>
+                            <span className="text-[10px] text-[#9B888C] font-normal lowercase">({col.type})</span>
                           </div>
                           {isSorted && (
                             <span className="text-[#8B1E3F]">
@@ -387,23 +420,27 @@ export const TableEditorView: React.FC = () => {
                       </th>
                     );
                   })}
-                  <th className="w-12 px-3 py-2 text-center text-[#999]">Actions</th>
+                  <th className="w-12 px-3 py-2 text-center text-[#9B888C]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f0f0f0] text-[#333]">
+              <tbody className="divide-y divide-[#E8DDD2] text-[#2B1D20]">
                 {processedRows.length === 0 ? (
                   <tr>
-                    <td colSpan={currentTable.columns.length + 2} className="py-16 text-center text-[#999] text-xs">
-                      No records match the current filter criteria or the table is empty.
+                    <td colSpan={currentTable.columns.length + 2} className="py-16 text-center text-[#9B888C] text-xs">
+                      <div className="max-w-xs mx-auto space-y-2">
+                        <Filter className="w-6 h-6 mx-auto text-[#9B888C]/60" />
+                        <p className="font-semibold text-[#2B1D20]">No matching records found</p>
+                        <p className="text-[11px] text-[#685559]">Adjust or clear your column filters and search criteria to see table rows.</p>
+                      </div>
                     </td>
                   </tr>
                 ) : (
                   processedRows.map((row, rowIdx) => (
                     <tr 
                       key={row.id || rowIdx}
-                      className="hover:bg-[#fafafa] transition-colors group"
+                      className="hover:bg-[#FAF7F2] transition-colors group"
                     >
-                      <td className="px-3 py-2 text-center text-[#999] font-mono text-[11px] border-r border-[#f0f0f0]">
+                      <td className="px-3 py-2 text-center text-[#9B888C] font-mono text-[11px] border-r border-[#E8DDD2]">
                         {rowIdx + 1}
                       </td>
 
@@ -413,16 +450,16 @@ export const TableEditorView: React.FC = () => {
 
                         let displayVal = val;
                         if (val === null || val === undefined) {
-                          displayVal = <span className="text-[#999] italic">null</span>;
+                          displayVal = <span className="text-[#9B888C] italic">null</span>;
                         } else if (typeof val === 'boolean') {
                           displayVal = (
-                            <span className={`px-1.5 py-0.5 rounded text-[10px] ${val ? 'bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]' : 'bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca]'}`}>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] ${val ? 'bg-[#EFF7F3] text-[#286E4F] border border-[#C4E6D5]' : 'bg-[#FDF0F3] text-[#8B1E3F] border border-[#F5C2CD]'}`}>
                               {String(val)}
                             </span>
                           );
                         } else if (typeof val === 'object') {
                           displayVal = (
-                            <span className="text-[#2563eb] truncate max-w-xs block" title={JSON.stringify(val)}>
+                            <span className="text-[#8B1E3F] truncate max-w-xs block font-mono text-[11px]" title={JSON.stringify(val)}>
                               {JSON.stringify(val)}
                             </span>
                           );
@@ -432,7 +469,7 @@ export const TableEditorView: React.FC = () => {
                           <td
                             key={col.name}
                             onDoubleClick={() => !col.isPrimary && handleStartEdit(row.id, col.name, val)}
-                            className="px-3.5 py-2 border-r border-[#f0f0f0] whitespace-nowrap max-w-xs truncate text-[#333]"
+                            className="px-3.5 py-2 border-r border-[#E8DDD2] whitespace-nowrap max-w-xs truncate text-[#2B1D20]"
                           >
                             {isEditing ? (
                               <div className="flex items-center gap-1">
@@ -445,17 +482,17 @@ export const TableEditorView: React.FC = () => {
                                     if (e.key === 'Enter') handleSaveCell(row.id, col.name);
                                     if (e.key === 'Escape') setEditingCell(null);
                                   }}
-                                  className="w-full bg-white text-[#1a1a1a] text-xs px-1.5 py-0.5 rounded border border-[#3ecf8e] focus:outline-hidden"
+                                  className="w-full bg-[#FFFDF9] text-[#2B1D20] text-xs px-1.5 py-0.5 rounded border border-[#8B1E3F] focus:outline-hidden"
                                 />
                                 <button
                                   onClick={() => handleSaveCell(row.id, col.name)}
-                                  className="p-0.5 text-[#3ecf8e] hover:text-[#34b27b]"
+                                  className="p-0.5 text-[#8B1E3F] hover:text-[#721833]"
                                 >
                                   <Check className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => setEditingCell(null)}
-                                  className="p-0.5 text-[#999] hover:text-[#333]"
+                                  className="p-0.5 text-[#9B888C] hover:text-[#2B1D20]"
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
@@ -466,7 +503,7 @@ export const TableEditorView: React.FC = () => {
                                 {!col.isPrimary && (
                                   <button
                                     onClick={() => handleStartEdit(row.id, col.name, val)}
-                                    className="opacity-0 group-hover/cell:opacity-100 p-0.5 text-[#999] hover:text-[#333] transition-opacity"
+                                    className="opacity-0 group-hover/cell:opacity-100 p-0.5 text-[#9B888C] hover:text-[#2B1D20] transition-opacity"
                                     title="Edit cell"
                                   >
                                     <Edit2 className="w-3 h-3" />
@@ -482,7 +519,7 @@ export const TableEditorView: React.FC = () => {
                       <td className="px-3 py-2 text-center">
                         <button
                           onClick={() => deleteTableRow(currentTable.id, row.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-[#999] hover:text-red-500 transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 p-1 text-[#9B888C] hover:text-[#8B1E3F] transition-opacity"
                           title="Delete row"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -561,10 +598,10 @@ const InsertRowModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-white border border-[#ececec] rounded-xl shadow-2xl overflow-hidden text-[#333] animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] bg-[#fafafa]">
-          <h3 className="text-sm font-semibold text-[#1a1a1a]">Insert Row into {table.name}</h3>
-          <button onClick={onClose} className="text-[#999] hover:text-[#333]">
+      <div className="w-full max-w-lg bg-[#FFFDF9] border border-[#E8DDD2] rounded-xl shadow-2xl overflow-hidden text-[#2B1D20] animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E8DDD2] bg-[#FAF7F2]">
+          <h3 className="text-sm font-semibold text-[#2B1D20]">Insert Row into {table.name}</h3>
+          <button onClick={onClose} className="text-[#9B888C] hover:text-[#2B1D20]">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -574,14 +611,14 @@ const InsertRowModal: React.FC<{
             if (col.name === 'created_at' || col.name === 'updated_at') return null;
             return (
               <div key={col.name}>
-                <label className="block text-xs font-medium text-[#333] mb-1">
-                  {col.name} <span className="text-[#999] font-mono">({col.type})</span>
-                  {col.isPrimary && <span className="text-amber-500 ml-1 text-[10px]">PRIMARY KEY</span>}
+                <label className="block text-xs font-medium text-[#2B1D20] mb-1">
+                  {col.name} <span className="text-[#9B888C] font-mono">({col.type})</span>
+                  {col.isPrimary && <span className="text-[#8B1E3F] ml-1 text-[10px] font-semibold">PRIMARY KEY</span>}
                 </label>
                 {col.type === 'boolean' ? (
                   <select
                     onChange={(e) => setFormData({ ...formData, [col.name]: e.target.value === 'true' })}
-                    className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e]"
+                    className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
                   >
                     <option value="false">false</option>
                     <option value="true">true</option>
@@ -597,31 +634,31 @@ const InsertRowModal: React.FC<{
                         setFormData({ ...formData, [col.name]: e.target.value });
                       }
                     }}
-                    className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] font-mono focus:outline-hidden focus:border-[#3ecf8e]"
+                    className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] font-mono focus:outline-hidden focus:border-[#8B1E3F]"
                   />
                 ) : (
                   <input
                     type="text"
                     placeholder={col.defaultValue || (col.isNullable ? 'NULL' : '')}
                     onChange={(e) => setFormData({ ...formData, [col.name]: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] font-mono focus:outline-hidden focus:border-[#3ecf8e]"
+                    className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] font-mono focus:outline-hidden focus:border-[#8B1E3F]"
                   />
                 )}
               </div>
             );
           })}
 
-          <div className="pt-3 flex justify-end gap-2.5 border-t border-[#ececec]">
+          <div className="pt-3 flex justify-end gap-2.5 border-t border-[#E8DDD2]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-md text-xs text-[#666] hover:bg-[#f9f9f9] border border-[#ececec]"
+              className="px-3.5 py-1.5 rounded-lg text-xs text-[#685559] hover:bg-[#FAF7F2] border border-[#E8DDD2]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 rounded-md bg-[#3ecf8e] hover:bg-[#34b27b] text-xs font-medium text-white shadow-xs"
+              className="px-4 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-medium text-white shadow-xs"
             >
               Save Record
             </button>
@@ -656,33 +693,33 @@ const AddColumnModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white border border-[#ececec] rounded-xl shadow-2xl overflow-hidden text-[#333]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] bg-[#fafafa]">
-          <h3 className="text-sm font-semibold text-[#1a1a1a]">Add Column to {table.name}</h3>
-          <button onClick={onClose} className="text-[#999] hover:text-[#333]">
+      <div className="w-full max-w-md bg-[#FFFDF9] border border-[#E8DDD2] rounded-xl shadow-2xl overflow-hidden text-[#2B1D20]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E8DDD2] bg-[#FAF7F2]">
+          <h3 className="text-sm font-semibold text-[#2B1D20]">Add Column to {table.name}</h3>
+          <button onClick={onClose} className="text-[#9B888C] hover:text-[#2B1D20]">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-3.5">
           <div>
-            <label className="block text-xs font-medium text-[#333] mb-1">Column Name</label>
+            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Column Name</label>
             <input
               type="text"
               required
               value={colName}
               onChange={(e) => setColName(e.target.value)}
               placeholder="e.g. status, bio, priority"
-              className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e] font-mono"
+              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F] font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#333] mb-1">Type</label>
+            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Type</label>
             <select
               value={colType}
               onChange={(e) => setColType(e.target.value as ColumnType)}
-              className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e] font-mono"
+              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F] font-mono"
             >
               <option value="text">text</option>
               <option value="varchar">varchar</option>
@@ -698,13 +735,13 @@ const AddColumnModal: React.FC<{
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#333] mb-1">Default Value (Optional)</label>
+            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Default Value (Optional)</label>
             <input
               type="text"
               value={defaultValue}
               onChange={(e) => setDefaultValue(e.target.value)}
               placeholder="e.g. 'draft', 0, NOW()"
-              className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e] font-mono"
+              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F] font-mono"
             />
           </div>
 
@@ -714,22 +751,22 @@ const AddColumnModal: React.FC<{
               id="nullable-checkbox"
               checked={isNullable}
               onChange={(e) => setIsNullable(e.target.checked)}
-              className="rounded border-[#ececec] text-[#3ecf8e] focus:ring-0"
+              className="rounded border-[#E8DDD2] text-[#8B1E3F] focus:ring-0"
             />
-            <label htmlFor="nullable-checkbox" className="text-xs text-[#666]">Allow NULL values</label>
+            <label htmlFor="nullable-checkbox" className="text-xs text-[#685559]">Allow NULL values</label>
           </div>
 
-          <div className="pt-3 flex justify-end gap-2.5 border-t border-[#ececec]">
+          <div className="pt-3 flex justify-end gap-2.5 border-t border-[#E8DDD2]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-md text-xs text-[#666] hover:bg-[#f9f9f9] border border-[#ececec]"
+              className="px-3.5 py-1.5 rounded-lg text-xs text-[#685559] hover:bg-[#FAF7F2] border border-[#E8DDD2]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 rounded-md bg-[#3ecf8e] hover:bg-[#34b27b] text-xs font-medium text-white shadow-xs"
+              className="px-4 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-medium text-white shadow-xs"
             >
               Add Column
             </button>
@@ -786,62 +823,62 @@ const CreateTableModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white border border-[#ececec] rounded-xl shadow-2xl overflow-hidden text-[#333]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#ececec] bg-[#fafafa]">
-          <h3 className="text-sm font-semibold text-[#1a1a1a]">Create New Table</h3>
-          <button onClick={onClose} className="text-[#999] hover:text-[#333]">
+      <div className="w-full max-w-md bg-[#FFFDF9] border border-[#E8DDD2] rounded-xl shadow-2xl overflow-hidden text-[#2B1D20]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E8DDD2] bg-[#FAF7F2]">
+          <h3 className="text-sm font-semibold text-[#2B1D20]">Create New Table</h3>
+          <button onClick={onClose} className="text-[#9B888C] hover:text-[#2B1D20]">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-3.5">
           <div>
-            <label className="block text-xs font-medium text-[#333] mb-1">Table Name</label>
+            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Table Name</label>
             <input
               type="text"
               required
               value={tableName}
               onChange={(e) => setTableName(e.target.value)}
               placeholder="e.g. notifications, projects, audit_logs"
-              className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e] font-mono"
+              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F] font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#333] mb-1">Description (Optional)</label>
+            <label className="block text-xs font-medium text-[#2B1D20] mb-1">Description (Optional)</label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. User notifications with delivery status"
-              className="w-full px-3 py-2 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e]"
+              className="w-full px-3 py-2 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
             />
           </div>
 
-          <div className="p-3.5 rounded-lg bg-[#f9f9f9] border border-[#ececec] flex items-center justify-between">
+          <div className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-between">
             <div>
-              <div className="text-xs font-semibold text-[#1a1a1a]">Enable Row Level Security (RLS)</div>
-              <p className="text-[11px] text-[#666]">Enforce database-level access control policies</p>
+              <div className="text-xs font-semibold text-[#2B1D20]">Enable Row Level Security (RLS)</div>
+              <p className="text-[11px] text-[#685559]">Enforce database-level access control policies</p>
             </div>
             <input
               type="checkbox"
               checked={enableRls}
               onChange={(e) => setEnableRls(e.target.checked)}
-              className="rounded border-[#ececec] text-[#3ecf8e] focus:ring-0 w-4 h-4"
+              className="rounded border-[#E8DDD2] text-[#8B1E3F] focus:ring-0 w-4 h-4"
             />
           </div>
 
-          <div className="pt-3 flex justify-end gap-2.5 border-t border-[#ececec]">
+          <div className="pt-3 flex justify-end gap-2.5 border-t border-[#E8DDD2]">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-md text-xs text-[#666] hover:bg-[#f9f9f9] border border-[#ececec]"
+              className="px-3.5 py-1.5 rounded-lg text-xs text-[#685559] hover:bg-[#FAF7F2] border border-[#E8DDD2]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 rounded-md bg-[#3ecf8e] hover:bg-[#34b27b] text-xs font-medium text-white shadow-xs"
+              className="px-4 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-medium text-white shadow-xs"
             >
               Create Table
             </button>
@@ -883,32 +920,32 @@ const PolicyDrawer: React.FC<{
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full max-w-md z-50 bg-white border-l border-[#ececec] shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
-      <div className="p-4 border-b border-[#ececec] bg-[#fafafa] flex items-center justify-between">
+    <div className="fixed inset-y-0 right-0 w-full max-w-md z-50 bg-[#FFFDF9] border-l border-[#E8DDD2] shadow-2xl flex flex-col animate-in slide-in-from-right duration-200 text-[#2B1D20]">
+      <div className="p-4 border-b border-[#E8DDD2] bg-[#FAF7F2] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-[#3ecf8e]" />
-          <h3 className="text-sm font-semibold text-[#1a1a1a]">RLS Policies for {table.name}</h3>
+          <ShieldCheck className="w-4 h-4 text-[#286E4F]" />
+          <h3 className="text-sm font-semibold text-[#2B1D20]">RLS Policies for {table.name}</h3>
         </div>
-        <button onClick={onClose} className="text-[#999] hover:text-[#333]">
+        <button onClick={onClose} className="text-[#9B888C] hover:text-[#2B1D20]">
           <X className="w-4 h-4" />
         </button>
       </div>
 
       <div className="p-4 flex-1 overflow-y-auto space-y-4">
         {/* Toggle RLS */}
-        <div className="p-3.5 rounded-lg bg-[#f9f9f9] border border-[#ececec] flex items-center justify-between">
+        <div className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-between">
           <div>
-            <div className="text-xs font-semibold text-[#1a1a1a]">Row Level Security</div>
-            <div className="text-[11px] text-[#666]">
+            <div className="text-xs font-semibold text-[#2B1D20]">Row Level Security</div>
+            <div className="text-[11px] text-[#685559]">
               {table.rlsEnabled ? 'Restricts unauthorized SQL, REST & GraphQL queries' : 'Table is publicly accessible without policies'}
             </div>
           </div>
           <button
             onClick={onToggleRls}
-            className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+            className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
               table.rlsEnabled
-                ? 'bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]'
-                : 'bg-[#f4f4f5] text-[#666] border border-[#ececec]'
+                ? 'bg-[#EFF7F3] text-[#286E4F] border border-[#C4E6D5]'
+                : 'bg-[#FAF7F2] text-[#685559] border border-[#E8DDD2]'
             }`}
           >
             {table.rlsEnabled ? 'Enabled' : 'Disabled'}
@@ -917,44 +954,44 @@ const PolicyDrawer: React.FC<{
 
         {/* Existing Policies */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs font-semibold text-[#333]">
+          <div className="flex items-center justify-between text-xs font-semibold text-[#2B1D20]">
             <span>Active Policies ({table.policies.length})</span>
             <button
               onClick={() => setIsAddingPolicy(true)}
-              className="text-[#3ecf8e] hover:text-[#34b27b] flex items-center gap-1 text-xs font-medium"
+              className="text-[#8B1E3F] hover:text-[#721833] flex items-center gap-1 text-xs font-semibold"
             >
               <Plus className="w-3.5 h-3.5" /> Add Policy
             </button>
           </div>
 
           {table.policies.length === 0 ? (
-            <div className="p-6 text-center text-xs text-[#999] border border-dashed border-[#ececec] rounded-lg">
+            <div className="p-6 text-center text-xs text-[#9B888C] border border-dashed border-[#E8DDD2] rounded-lg">
               No policies configured. When RLS is enabled, no data can be queried unless a policy allows it.
             </div>
           ) : (
             table.policies.map((policy) => (
-              <div key={policy.id} className="p-3.5 rounded-lg bg-[#f9f9f9] border border-[#ececec] space-y-2">
+              <div key={policy.id} className="p-3.5 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h4 className="text-xs font-semibold text-[#1a1a1a]">{policy.name}</h4>
+                    <h4 className="text-xs font-semibold text-[#2B1D20]">{policy.name}</h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#f0fdf4] text-[#15803d] border border-[#bbf7d0]">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#EFF7F3] text-[#286E4F] border border-[#C4E6D5]">
                         {policy.command}
                       </span>
-                      <span className="text-[10px] text-[#666]">
+                      <span className="text-[10px] text-[#685559]">
                         Roles: {policy.roles.join(', ')}
                       </span>
                     </div>
                   </div>
                   <button
                     onClick={() => onDeletePolicy(policy.id)}
-                    className="p-1 text-[#999] hover:text-red-500"
+                    className="p-1 text-[#9B888C] hover:text-[#8B1E3F]"
                     title="Delete Policy"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <div className="p-2 rounded bg-white border border-[#ececec] text-[11px] font-mono text-[#666] truncate">
+                <div className="p-2 rounded bg-[#FFFDF9] border border-[#E8DDD2] text-[11px] font-mono text-[#685559] truncate">
                   USING ({policy.usingExpression})
                 </div>
               </div>
@@ -964,26 +1001,26 @@ const PolicyDrawer: React.FC<{
 
         {/* Add Policy Form */}
         {isAddingPolicy && (
-          <form onSubmit={handleSavePolicy} className="p-4 rounded-lg bg-[#f9f9f9] border border-[#bbf7d0] space-y-3">
-            <h4 className="text-xs font-semibold text-[#15803d]">New Policy Definition</h4>
+          <form onSubmit={handleSavePolicy} className="p-4 rounded-lg bg-[#FAF7F2] border border-[#8B1E3F]/30 space-y-3">
+            <h4 className="text-xs font-semibold text-[#8B1E3F]">New Policy Definition</h4>
             <div>
-              <label className="block text-[11px] text-[#333] mb-1">Policy Name</label>
+              <label className="block text-[11px] text-[#2B1D20] mb-1">Policy Name</label>
               <input
                 type="text"
                 required
                 value={policyName}
                 onChange={(e) => setPolicyName(e.target.value)}
                 placeholder="e.g. Users can read their own documents"
-                className="w-full px-2.5 py-1.5 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e]"
+                className="w-full px-2.5 py-1.5 rounded-md bg-[#FFFDF9] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-[11px] text-[#333] mb-1">Command</label>
+                <label className="block text-[11px] text-[#2B1D20] mb-1">Command</label>
                 <select
                   value={command}
                   onChange={(e) => setCommand(e.target.value as any)}
-                  className="w-full px-2 py-1.5 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e]"
+                  className="w-full px-2 py-1.5 rounded-md bg-[#FFFDF9] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
                 >
                   <option value="SELECT">SELECT</option>
                   <option value="INSERT">INSERT</option>
@@ -993,11 +1030,11 @@ const PolicyDrawer: React.FC<{
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] text-[#333] mb-1">Target Role</label>
+                <label className="block text-[11px] text-[#2B1D20] mb-1">Target Role</label>
                 <select
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
-                  className="w-full px-2 py-1.5 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] focus:outline-hidden focus:border-[#3ecf8e]"
+                  className="w-full px-2 py-1.5 rounded-md bg-[#FFFDF9] border border-[#E8DDD2] text-xs text-[#2B1D20] focus:outline-hidden focus:border-[#8B1E3F]"
                 >
                   <option value="authenticated">authenticated</option>
                   <option value="anon">anon</option>
@@ -1007,27 +1044,27 @@ const PolicyDrawer: React.FC<{
               </div>
             </div>
             <div>
-              <label className="block text-[11px] text-[#333] mb-1">USING Expression (SQL)</label>
+              <label className="block text-[11px] text-[#2B1D20] mb-1">USING Expression (SQL)</label>
               <input
                 type="text"
                 required
                 value={usingExpr}
                 onChange={(e) => setUsingExpr(e.target.value)}
                 placeholder="auth.uid() = user_id"
-                className="w-full px-2.5 py-1.5 rounded-md bg-white border border-[#ececec] text-xs text-[#1a1a1a] font-mono focus:outline-hidden focus:border-[#3ecf8e]"
+                className="w-full px-2.5 py-1.5 rounded-md bg-[#FFFDF9] border border-[#E8DDD2] text-xs text-[#2B1D20] font-mono focus:outline-hidden focus:border-[#8B1E3F]"
               />
             </div>
             <div className="flex justify-end gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setIsAddingPolicy(false)}
-                className="px-3 py-1 text-xs text-[#666] hover:bg-white border border-[#ececec] rounded"
+                className="px-3 py-1 text-xs text-[#685559] hover:bg-[#FAF7F2] border border-[#E8DDD2] rounded"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-3 py-1 bg-[#3ecf8e] hover:bg-[#34b27b] text-xs font-medium text-white rounded shadow-xs"
+                className="px-3 py-1 bg-[#8B1E3F] hover:bg-[#721833] text-xs font-medium text-white rounded shadow-xs"
               >
                 Save Policy
               </button>

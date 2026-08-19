@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useSupabase } from '../../context/SupabaseContext';
 
 interface Hero3DCanvasProps {
   className?: string;
@@ -6,6 +7,8 @@ interface Hero3DCanvasProps {
 
 export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { theme } = useSupabase();
+  const isDark = theme === 'midnight';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -137,9 +140,15 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
 
       // Draw background ambient glow
       const grad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 220);
-      grad.addColorStop(0, 'rgba(139, 30, 63, 0.09)');
-      grad.addColorStop(0.6, 'rgba(139, 30, 63, 0.02)');
-      grad.addColorStop(1, 'rgba(250, 247, 242, 0)');
+      if (isDark) {
+        grad.addColorStop(0, 'rgba(224, 72, 109, 0.12)');
+        grad.addColorStop(0.6, 'rgba(224, 72, 109, 0.03)');
+        grad.addColorStop(1, 'rgba(15, 13, 14, 0)');
+      } else {
+        grad.addColorStop(0, 'rgba(139, 30, 63, 0.09)');
+        grad.addColorStop(0.6, 'rgba(139, 30, 63, 0.02)');
+        grad.addColorStop(1, 'rgba(250, 247, 242, 0)');
+      }
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
@@ -153,7 +162,7 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
         else ctx.lineTo(p.x, p.y);
       }
       ctx.closePath();
-      ctx.strokeStyle = 'rgba(232, 221, 210, 0.8)';
+      ctx.strokeStyle = isDark ? 'rgba(84, 28, 41, 0.6)' : 'rgba(232, 221, 210, 0.8)';
       ctx.lineWidth = 1.2;
       ctx.setLineDash([4, 4]);
       ctx.stroke();
@@ -188,8 +197,12 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
             ctx.lineTo(p3.x, p3.y);
             ctx.closePath();
 
-            const alpha = 0.03 + (tierIdx === 1 ? 0.05 : 0.02);
-            ctx.fillStyle = tierIdx === 1 ? `rgba(139, 30, 63, ${alpha})` : `rgba(43, 29, 32, ${alpha})`;
+            const alpha = 0.03 + (tierIdx === 1 ? 0.06 : 0.02);
+            if (isDark) {
+              ctx.fillStyle = tierIdx === 1 ? `rgba(255, 90, 132, ${alpha + 0.04})` : `rgba(245, 242, 243, ${alpha})`;
+            } else {
+              ctx.fillStyle = tierIdx === 1 ? `rgba(139, 30, 63, ${alpha})` : `rgba(43, 29, 32, ${alpha})`;
+            }
             ctx.fill();
           }
         });
@@ -204,10 +217,10 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
         });
 
         if (tierIdx === 1) {
-          ctx.strokeStyle = 'rgba(139, 30, 63, 0.65)';
+          ctx.strokeStyle = isDark ? 'rgba(255, 90, 132, 0.85)' : 'rgba(139, 30, 63, 0.65)';
           ctx.lineWidth = 1.6;
         } else {
-          ctx.strokeStyle = 'rgba(104, 85, 89, 0.45)';
+          ctx.strokeStyle = isDark ? 'rgba(184, 168, 172, 0.45)' : 'rgba(104, 85, 89, 0.45)';
           ctx.lineWidth = 1.1;
         }
         ctx.stroke();
@@ -216,7 +229,11 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
         projected.forEach((p) => {
           ctx.beginPath();
           ctx.arc(p.x, p.y, tierIdx === 1 ? 3 : 2, 0, Math.PI * 2);
-          ctx.fillStyle = tierIdx === 1 ? '#8B1E3F' : '#685559';
+          if (isDark) {
+            ctx.fillStyle = tierIdx === 1 ? '#FF5A84' : '#B8A8AC';
+          } else {
+            ctx.fillStyle = tierIdx === 1 ? '#8B1E3F' : '#685559';
+          }
           ctx.fill();
         });
       });
@@ -240,7 +257,7 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
         if (a === 0) ctx.moveTo(p.x, p.y);
         else ctx.lineTo(p.x, p.y);
       }
-      ctx.strokeStyle = 'rgba(139, 30, 63, 0.5)';
+      ctx.strokeStyle = isDark ? 'rgba(255, 90, 132, 0.75)' : 'rgba(139, 30, 63, 0.5)';
       ctx.lineWidth = 1.4;
       ctx.stroke();
 
@@ -261,7 +278,7 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, pt.size * p.fov, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(139, 30, 63, 0.75)';
+        ctx.fillStyle = isDark ? 'rgba(255, 90, 132, 0.9)' : 'rgba(139, 30, 63, 0.75)';
         ctx.fill();
 
         // Trace beam to core
@@ -270,7 +287,7 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(coreProj.x, coreProj.y);
-          ctx.strokeStyle = 'rgba(139, 30, 63, 0.18)';
+          ctx.strokeStyle = isDark ? 'rgba(255, 90, 132, 0.35)' : 'rgba(139, 30, 63, 0.18)';
           ctx.lineWidth = 0.8;
           ctx.stroke();
         }
@@ -286,7 +303,7 @@ export const Hero3DCanvas: React.FC<Hero3DCanvasProps> = ({ className }) => {
       canvas.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isDark]);
 
   return (
     <div className={`relative w-full h-full min-h-[380px] flex items-center justify-center ${className || ''}`}>

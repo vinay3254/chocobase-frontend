@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useSupabase } from '../../context/SupabaseContext';
 
 interface VectorCloud3DProps {
   className?: string;
@@ -6,6 +7,8 @@ interface VectorCloud3DProps {
 
 export const VectorCloud3D: React.FC<VectorCloud3DProps> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { theme } = useSupabase();
+  const isDark = theme === 'midnight';
   const [metric, setMetric] = useState<'cosine' | 'euclidean' | 'dot'>('cosine');
   const [similarityScore, setSimilarityScore] = useState(0.964);
 
@@ -127,7 +130,7 @@ export const VectorCloud3D: React.FC<VectorCloud3DProps> = ({ className }) => {
       const py = project(0, axisLen, 0, rotX, rotY, cx, cy);
       const pz = project(0, 0, axisLen, rotX, rotY, cx, cy);
 
-      ctx.strokeStyle = 'rgba(232, 221, 210, 0.9)';
+      ctx.strokeStyle = isDark ? 'rgba(84, 28, 41, 0.45)' : 'rgba(232, 221, 210, 0.9)';
       ctx.lineWidth = 1;
 
       // X axis
@@ -163,7 +166,7 @@ export const VectorCloud3D: React.FC<VectorCloud3DProps> = ({ className }) => {
       ctx.beginPath();
       ctx.moveTo(queryProj.x, queryProj.y);
       ctx.lineTo(nearProj.x, nearProj.y);
-      ctx.strokeStyle = '#8B1E3F';
+      ctx.strokeStyle = isDark ? '#FF5A84' : '#8B1E3F';
       ctx.lineWidth = 1.4;
       ctx.setLineDash([3, 3]);
       ctx.stroke();
@@ -174,20 +177,22 @@ export const VectorCloud3D: React.FC<VectorCloud3DProps> = ({ className }) => {
         const p = project(pt.x, pt.y, pt.z, rotX, rotY, cx, cy);
         ctx.beginPath();
         ctx.arc(p.x, p.y, Math.max(1, 2.8 * p.fov), 0, Math.PI * 2);
-        ctx.fillStyle = pt.cluster === 0 ? '#8B1E3F' : '#685559';
+        ctx.fillStyle = pt.cluster === 0 
+          ? (isDark ? '#FF5A84' : '#8B1E3F') 
+          : (isDark ? '#B8A8AC' : '#685559');
         ctx.fill();
       });
 
       // Draw Query Vector Node
       ctx.beginPath();
       ctx.arc(queryProj.x, queryProj.y, 4.5 * queryProj.fov, 0, Math.PI * 2);
-      ctx.fillStyle = '#8B1E3F';
+      ctx.fillStyle = isDark ? '#FF5A84' : '#8B1E3F';
       ctx.fill();
 
       // Query vector halo
       ctx.beginPath();
       ctx.arc(queryProj.x, queryProj.y, 8 * queryProj.fov, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(139, 30, 63, 0.4)';
+      ctx.strokeStyle = isDark ? 'rgba(255, 90, 132, 0.5)' : 'rgba(139, 30, 63, 0.4)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -203,7 +208,7 @@ export const VectorCloud3D: React.FC<VectorCloud3DProps> = ({ className }) => {
       window.removeEventListener('mouseup', onMouseUp);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isDark]);
 
   return (
     <div className={`relative flex flex-col items-center ${className || ''}`}>

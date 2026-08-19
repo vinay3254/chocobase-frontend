@@ -27,6 +27,7 @@ import { VectorCloud3D } from './VectorCloud3D';
 import { RealtimeWave3D } from './RealtimeWave3D';
 import { PostgresCluster3D } from './PostgresCluster3D';
 import { MegaMenuNav } from './MegaMenuNav';
+import { ThemeSwitcher } from '../Navigation/ThemeSwitcher';
 
 export const IntroLandingView: React.FC = () => {
   const { 
@@ -49,7 +50,7 @@ export const IntroLandingView: React.FC = () => {
       <div className="pointer-events-none absolute bottom-40 left-1/3 w-[800px] h-[500px] bg-[radial-gradient(ellipse_at_center,rgba(139,30,63,0.06)_0%,transparent_70%)] blur-3xl -z-10" />
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#E8DDD2]/70 bg-[#FAF7F2]/80 backdrop-blur-xl transition-colors">
+      <header className="sticky top-0 z-40 w-full border-b border-[#E8DDD2] bg-[#FAF7F2]/90 backdrop-blur-xl transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div 
@@ -71,7 +72,7 @@ export const IntroLandingView: React.FC = () => {
               href="https://github.com/supabase/supabase"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E8DDD2]/80 bg-white/70 hover:bg-white/95 text-xs text-[#2B1D20] font-medium transition-all shadow-2xs"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs text-[#2B1D20] font-medium transition-all shadow-2xs"
             >
               <Github className="w-3.5 h-3.5 text-[#2B1D20]" />
               <span className="font-semibold">Star on GitHub</span>
@@ -81,19 +82,22 @@ export const IntroLandingView: React.FC = () => {
             <button
               id="btn-landing-search"
               onClick={() => setIsCommandPaletteOpen(true)}
-              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#E8DDD2]/80 bg-white/70 hover:bg-white/95 backdrop-blur-md text-xs text-[#685559] hover:text-[#2B1D20] transition-all shadow-[0_2px_8px_-2px_rgba(43,29,32,0.04)]"
+              className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs text-[#685559] hover:text-[#2B1D20] transition-all shadow-2xs"
               title="Search workspace (Cmd+K or Ctrl+K)"
             >
               <Search className="w-3.5 h-3.5 text-[#8B1E3F]" />
               <span className="hidden sm:inline text-[11px] font-medium">Search</span>
-              <kbd className="text-[10px] font-mono bg-[#FFFDF9] text-[#685559] px-1 py-0.5 rounded border border-[#E8DDD2] shadow-2xs">
+              <kbd className="text-[10px] font-mono bg-[#FAF7F2] text-[#685559] px-1 py-0.5 rounded border border-[#E8DDD2] shadow-2xs">
                 ⌘K
               </kbd>
             </button>
 
+            {/* Theme Toggle */}
+            <ThemeSwitcher />
+
             <button
               onClick={() => setActiveView('organizations')}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/80 bg-white/70 hover:bg-white/90 backdrop-blur-md text-xs font-semibold text-[#2B1D20] transition-all shadow-[0_2px_8px_-2px_rgba(43,29,32,0.05),inset_0_1px_0_rgba(255,255,255,0.8)]"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs font-semibold text-[#2B1D20] transition-all shadow-2xs"
             >
               <Boxes className="w-3.5 h-3.5 text-[#8B1E3F]" />
               <span>Studio</span>
@@ -103,13 +107,13 @@ export const IntroLandingView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setActiveView('overview')}
-                  className="px-3.5 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-colors shadow-xs"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-colors shadow-xs whitespace-nowrap"
                 >
                   Dashboard
                 </button>
                 <button
                   onClick={signOut}
-                  className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#685559] hover:text-[#2B1D20]"
+                  className="whitespace-nowrap px-3 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs font-semibold text-[#685559] hover:text-[#2B1D20] shadow-2xs transition-colors"
                 >
                   Sign Out
                 </button>
@@ -124,7 +128,7 @@ export const IntroLandingView: React.FC = () => {
                 </button>
                 <button
                   onClick={() => openAuthModal('signup')}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-colors shadow-xs"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-colors shadow-xs whitespace-nowrap"
                 >
                   <span>Start Project</span>
                   <ArrowRight className="w-3 h-3" />
@@ -141,7 +145,7 @@ export const IntroLandingView: React.FC = () => {
           
           {/* Left Column: Vision & Actions */}
           <div className="lg:col-span-5 space-y-5 text-center lg:text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/70 backdrop-blur-md border border-white/80 text-xs font-medium text-[#685559] shadow-[0_2px_8px_-2px_rgba(43,29,32,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF9] border border-[#E8DDD2] text-xs font-medium text-[#685559] shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#8B1E3F]" />
               <span>Next-Gen Database Platform</span>
             </div>
@@ -166,14 +170,14 @@ export const IntroLandingView: React.FC = () => {
 
               <button
                 onClick={() => setActiveView('overview')}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/80 bg-white/70 hover:bg-white/90 backdrop-blur-md text-xs font-semibold text-[#2B1D20] transition-all shadow-[0_2px_10px_-2px_rgba(43,29,32,0.05),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs font-semibold text-[#2B1D20] transition-all shadow-2xs hover:-translate-y-0.5"
               >
                 <span>Launch Studio</span>
               </button>
             </div>
 
             {/* Metrics */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#E8DDD2]/70">
+            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#E8DDD2]">
               <div>
                 <div className="text-lg font-bold text-[#2B1D20]">99.99%</div>
                 <div className="text-[11px] text-[#685559]">Uptime SLA</div>
@@ -189,18 +193,18 @@ export const IntroLandingView: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: 3D Interactive Canvas with Glassmorphic Housing & Smooth Elevation */}
-          <div className="lg:col-span-7 h-[420px] rounded-3xl bg-gradient-to-b from-white/90 via-white/70 to-[#FAF7F2]/60 hover:from-white hover:via-white/85 hover:to-[#FAF7F2]/80 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/30 shadow-[0_12px_36px_-6px_rgba(43,29,32,0.06),0_2px_8px_rgba(43,29,32,0.03),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_50px_-10px_rgba(139,30,63,0.12),0_4px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden relative group">
-            {/* Dynamic Inner Glass Highlight with intensity shift */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,30,63,0.08)_0%,transparent_65%)] opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
+          {/* Right Column: 3D Interactive Canvas with Clean Housing */}
+          <div className="lg:col-span-7 h-[420px] rounded-3xl bg-[#FFFDF9] border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden relative group">
+            {/* Dynamic Inner Highlight with subtle shift */}
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,30,63,0.06)_0%,transparent_65%)] opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
             <Hero3DCanvas />
           </div>
         </div>
       </section>
 
       {/* Fast Growing Companies Strip */}
-      <section className="border-y border-[#E8DDD2]/70 bg-white/50 backdrop-blur-md py-6 px-4">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-6 text-xs font-bold text-[#685559]">
+      <section className="border-y border-[#E8DDD2] bg-[#FAF7F2] py-5 px-4">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-6 text-xs font-bold text-[#685559] tracking-wider">
           <span>LOVABLE</span>
           <span>MOZILLA</span>
           <span>PWC</span>
@@ -220,21 +224,18 @@ export const IntroLandingView: React.FC = () => {
           <p className="text-xs text-[#685559]">Explore the interconnected engines powering modern enterprise applications.</p>
         </div>
 
-        {/* 2-Column Grid of 3D Pillars with Tactile Glassmorphism */}
+        {/* 2-Column Grid of 3D Pillars with Refined Surfaces */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
           {/* 1. Postgres Database Engine */}
           <div 
             id="database" 
-            className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/35 shadow-[0_8px_30px_-6px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_48px_-12px_rgba(139,30,63,0.14),0_6px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
+            className="group relative p-6 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2]/40 border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
           >
-            {/* Top glass reflection gradient with dynamic shift */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(139,30,63,0.08),transparent_70%)] opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
-            
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-white/90 border border-[#E8DDD2]/80 backdrop-blur-sm flex items-center justify-center text-[#8B1E3F] shadow-[0_2px_6px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,1)] group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-center text-[#8B1E3F] shadow-2xs group-hover:scale-105 transition-transform">
                     <Database className="w-4 h-4" />
                   </div>
                   <div>
@@ -254,7 +255,7 @@ export const IntroLandingView: React.FC = () => {
               </div>
             </div>
 
-            <div className="relative z-10 p-3 rounded-xl bg-white/60 backdrop-blur-md border border-white/80 flex items-center justify-between text-xs shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] group-hover:bg-white/80 transition-colors">
+            <div className="relative z-10 p-3 rounded-xl bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-between text-xs shadow-2xs group-hover:bg-[#F4EFEA] transition-colors">
               <div className="flex items-center gap-2">
                 <Server className="w-3.5 h-3.5 text-[#8B1E3F]" />
                 <span className="font-semibold text-[#2B1D20]">Postgres Engine Status</span>
@@ -266,15 +267,12 @@ export const IntroLandingView: React.FC = () => {
           {/* 2. Global Edge Network (3D Globe) */}
           <div 
             id="edge" 
-            className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/35 shadow-[0_8px_30px_-6px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_48px_-12px_rgba(139,30,63,0.14),0_6px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
+            className="group relative p-6 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2]/40 border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
           >
-            {/* Top glass reflection gradient with dynamic shift */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(40,110,79,0.07),transparent_70%)] opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
-
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-white/90 border border-[#E8DDD2]/80 backdrop-blur-sm flex items-center justify-center text-[#8B1E3F] shadow-[0_2px_6px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,1)] group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-center text-[#8B1E3F] shadow-2xs group-hover:scale-105 transition-transform">
                     <Globe className="w-4 h-4" />
                   </div>
                   <div>
@@ -292,15 +290,12 @@ export const IntroLandingView: React.FC = () => {
           {/* 3. Realtime Broadcast & Presence (3D Mesh) */}
           <div 
             id="realtime" 
-            className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/35 shadow-[0_8px_30px_-6px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_48px_-12px_rgba(139,30,63,0.14),0_6px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
+            className="group relative p-6 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2]/40 border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
           >
-            {/* Top glass reflection gradient with dynamic shift */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(139,30,63,0.08),transparent_70%)] opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
-
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-white/90 border border-[#E8DDD2]/80 backdrop-blur-sm flex items-center justify-center text-[#8B1E3F] shadow-[0_2px_6px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,1)] group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-center text-[#8B1E3F] shadow-2xs group-hover:scale-105 transition-transform">
                     <Radio className="w-4 h-4" />
                   </div>
                   <div>
@@ -318,15 +313,12 @@ export const IntroLandingView: React.FC = () => {
           {/* 4. pgvector Semantic Search (3D Vector Point Cloud) */}
           <div 
             id="ai-vector" 
-            className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/35 shadow-[0_8px_30px_-6px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_48px_-12px_rgba(139,30,63,0.14),0_6px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
+            className="group relative p-6 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2]/40 border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out flex flex-col justify-between space-y-4 overflow-hidden"
           >
-            {/* Top glass reflection gradient with dynamic shift */}
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(139,30,63,0.08),transparent_70%)] opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
-
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-white/90 border border-[#E8DDD2]/80 backdrop-blur-sm flex items-center justify-center text-[#8B1E3F] shadow-[0_2px_6px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,1)] group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-center text-[#8B1E3F] shadow-2xs group-hover:scale-105 transition-transform">
                     <Cpu className="w-4 h-4" />
                   </div>
                   <div>
@@ -343,19 +335,17 @@ export const IntroLandingView: React.FC = () => {
 
         </div>
 
-        {/* Bottom Tier: Storage & Authentication Cards with Tactile Glassmorphism */}
+        {/* Bottom Tier: Storage & Authentication Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           
           {/* Storage Engine */}
           <div 
             id="storage" 
-            className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/35 shadow-[0_8px_30px_-6px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_48px_-12px_rgba(139,30,63,0.14),0_6px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out space-y-4 overflow-hidden"
+            className="group relative p-6 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2]/40 border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out space-y-4 overflow-hidden"
           >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(40,110,79,0.06),transparent_70%)] opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
-
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/90 border border-[#E8DDD2]/80 backdrop-blur-sm flex items-center justify-center text-[#8B1E3F] shadow-[0_2px_6px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,1)] group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-center text-[#8B1E3F] shadow-2xs group-hover:scale-105 transition-transform">
                   <FolderOpen className="w-4 h-4" />
                 </div>
                 <div>
@@ -373,7 +363,7 @@ export const IntroLandingView: React.FC = () => {
                 { name: 'DB Backups', size: '118 GB' },
                 { name: 'Documents', size: '8.4 GB' },
               ].map((item) => (
-                <div key={item.name} className="p-3 rounded-xl bg-white/60 hover:bg-white/90 border border-white/80 hover:border-[#8B1E3F]/30 backdrop-blur-xs text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+                <div key={item.name} className="p-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFEA] border border-[#E8DDD2] hover:border-[#8B1E3F]/30 text-center shadow-2xs hover:-translate-y-0.5 transition-all duration-200">
                   <div className="text-xs font-bold text-[#2B1D20] truncate">{item.name}</div>
                   <div className="text-[10px] text-[#8B1E3F] font-mono mt-0.5">{item.size}</div>
                 </div>
@@ -384,13 +374,11 @@ export const IntroLandingView: React.FC = () => {
           {/* Authentication & RLS */}
           <div 
             id="security" 
-            className="group relative p-6 rounded-2xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-xl border border-white/80 hover:border-[#8B1E3F]/35 shadow-[0_8px_30px_-6px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_24px_48px_-12px_rgba(139,30,63,0.14),0_6px_16px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out space-y-4 overflow-hidden"
+            className="group relative p-6 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2]/40 border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 ease-out space-y-4 overflow-hidden"
           >
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(139,30,63,0.08),transparent_70%)] opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
-
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white/90 border border-[#E8DDD2]/80 backdrop-blur-sm flex items-center justify-center text-[#8B1E3F] shadow-[0_2px_6px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,1)] group-hover:scale-105 transition-transform">
+                <div className="w-8 h-8 rounded-lg bg-[#FAF7F2] border border-[#E8DDD2] flex items-center justify-center text-[#8B1E3F] shadow-2xs group-hover:scale-105 transition-transform">
                   <Lock className="w-4 h-4" />
                 </div>
                 <div>
@@ -407,15 +395,15 @@ export const IntroLandingView: React.FC = () => {
             </div>
 
             <div className="relative z-10 grid grid-cols-3 gap-2">
-              <div className="p-3 rounded-xl bg-white/60 hover:bg-white/90 border border-white/80 hover:border-[#8B1E3F]/30 backdrop-blur-xs text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+              <div className="p-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFEA] border border-[#E8DDD2] hover:border-[#8B1E3F]/30 text-center shadow-2xs hover:-translate-y-0.5 transition-all duration-200">
                 <div className="text-xs font-bold text-[#2B1D20]">SSO / OAuth</div>
                 <div className="text-[10px] text-[#685559] mt-0.5">GitHub, Google</div>
               </div>
-              <div className="p-3 rounded-xl bg-white/60 hover:bg-white/90 border border-white/80 hover:border-[#8B1E3F]/30 backdrop-blur-xs text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+              <div className="p-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFEA] border border-[#E8DDD2] hover:border-[#8B1E3F]/30 text-center shadow-2xs hover:-translate-y-0.5 transition-all duration-200">
                 <div className="text-xs font-bold text-[#2B1D20]">Magic Links</div>
                 <div className="text-[10px] text-[#685559] mt-0.5">Passwordless</div>
               </div>
-              <div className="p-3 rounded-xl bg-white/60 hover:bg-white/90 border border-white/80 hover:border-[#8B1E3F]/30 backdrop-blur-xs text-center shadow-[0_2px_6px_rgba(0,0,0,0.02)] hover:shadow-xs hover:-translate-y-0.5 transition-all duration-200">
+              <div className="p-3 rounded-xl bg-[#FAF7F2] hover:bg-[#F4EFEA] border border-[#E8DDD2] hover:border-[#8B1E3F]/30 text-center shadow-2xs hover:-translate-y-0.5 transition-all duration-200">
                 <div className="text-xs font-bold text-[#2B1D20]">MFA & Biometrics</div>
                 <div className="text-[10px] text-[#286E4F] mt-0.5">Hardware Keys</div>
               </div>
@@ -442,9 +430,8 @@ export const IntroLandingView: React.FC = () => {
             <div 
               key={idx}
               onClick={() => openAuthModal('signup')}
-              className="relative p-4 rounded-xl bg-gradient-to-b from-white/90 via-white/75 to-[#FFFDF9]/60 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-lg border border-white/80 hover:border-[#8B1E3F]/40 shadow-[0_4px_16px_-4px_rgba(43,29,32,0.03),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:shadow-[0_16px_32px_-8px_rgba(139,30,63,0.12),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1 transition-all duration-300 ease-out cursor-pointer group overflow-hidden"
+              className="relative p-4 rounded-xl bg-[#FFFDF9] hover:bg-[#FAF7F2] border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-xs hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
             >
-              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(139,30,63,0.08),transparent_70%)] opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
               <div className="relative z-10">
                 <h3 className="text-xs font-bold text-[#2B1D20] group-hover:text-[#8B1E3F] transition-colors">
                   {t.title}
@@ -456,11 +443,9 @@ export const IntroLandingView: React.FC = () => {
         </div>
       </section>
 
-      {/* Bottom CTA with Floating Glassmorphic Card & Tactile Hover */}
+      {/* Bottom CTA with Floating Card */}
       <section className="py-14 px-4">
-        <div className="group max-w-3xl mx-auto rounded-3xl bg-gradient-to-b from-white/95 via-white/80 to-[#FFFDF9]/70 hover:from-white hover:via-white/90 hover:to-[#FFF9F6]/85 backdrop-blur-2xl border border-white/90 hover:border-[#8B1E3F]/35 shadow-[0_20px_50px_-12px_rgba(139,30,63,0.08),0_4px_12px_rgba(43,29,32,0.03),inset_0_1px_1px_rgba(255,255,255,1)] hover:shadow-[0_30px_65px_-12px_rgba(139,30,63,0.16),0_8px_20px_rgba(43,29,32,0.04),inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-1.5 transition-all duration-300 ease-out p-8 sm:p-10 text-center relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(139,30,63,0.1),transparent_70%)] opacity-70 group-hover:opacity-100 transition-opacity duration-300" />
-          
+        <div className="group max-w-3xl mx-auto rounded-3xl bg-[#FFFDF9] border border-[#E8DDD2] hover:border-[#8B1E3F]/35 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out p-8 sm:p-10 text-center relative overflow-hidden">
           <div className="relative z-10 max-w-xl mx-auto space-y-4">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2B1D20] tracking-tight">
               Build in a weekend, scale to millions
@@ -475,7 +460,7 @@ export const IntroLandingView: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveView('overview')}
-                className="px-4 py-2.5 rounded-xl border border-white/80 bg-white/70 hover:bg-white/90 backdrop-blur-md text-xs font-semibold text-[#2B1D20] shadow-[0_2px_8px_-2px_rgba(43,29,32,0.05),inset_0_1px_0_rgba(255,255,255,0.8)] hover:-translate-y-0.5 transition-all"
+                className="px-4 py-2.5 rounded-xl border border-[#E8DDD2] bg-[#FAF7F2] hover:bg-[#F4EFEA] text-xs font-semibold text-[#2B1D20] shadow-2xs hover:-translate-y-0.5 transition-all"
               >
                 Launch Studio
               </button>

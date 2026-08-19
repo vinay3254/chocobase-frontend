@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useSupabase } from '../../context/SupabaseContext';
 
 interface Globe3DProps {
   className?: string;
@@ -6,6 +7,8 @@ interface Globe3DProps {
 
 export const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { theme } = useSupabase();
+  const isDark = theme === 'midnight';
   const [activeRegion, setActiveRegion] = useState('us-east-1 (N. Virginia)');
   const [activeLatency, setActiveLatency] = useState('18ms');
 
@@ -120,8 +123,13 @@ export const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
 
       // Draw outer atmosphere glow
       const atmosphere = ctx.createRadialGradient(cx, cy, globeRadius * 0.7, cx, cy, globeRadius * 1.25);
-      atmosphere.addColorStop(0, 'rgba(139, 30, 63, 0.06)');
-      atmosphere.addColorStop(1, 'rgba(250, 247, 242, 0)');
+      if (isDark) {
+        atmosphere.addColorStop(0, 'rgba(224, 72, 109, 0.1)');
+        atmosphere.addColorStop(1, 'rgba(15, 13, 14, 0)');
+      } else {
+        atmosphere.addColorStop(0, 'rgba(139, 30, 63, 0.06)');
+        atmosphere.addColorStop(1, 'rgba(250, 247, 242, 0)');
+      }
       ctx.fillStyle = atmosphere;
       ctx.beginPath();
       ctx.arc(cx, cy, globeRadius * 1.2, 0, Math.PI * 2);
@@ -134,7 +142,9 @@ export const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
           const depthAlpha = Math.max(0.1, (p.z + globeRadius) / (globeRadius * 2));
           ctx.beginPath();
           ctx.arc(p.x, p.y, Math.max(0.7, 1.3 * p.fov), 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(104, 85, 89, ${depthAlpha * 0.45})`;
+          ctx.fillStyle = isDark 
+            ? `rgba(184, 168, 172, ${depthAlpha * 0.5})` 
+            : `rgba(104, 85, 89, ${depthAlpha * 0.45})`;
           ctx.fill();
         }
       });
@@ -154,14 +164,14 @@ export const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
         if (p.z > 0) {
           ctx.beginPath();
           ctx.arc(p.x, p.y, 3.5 * p.fov, 0, Math.PI * 2);
-          ctx.fillStyle = '#8B1E3F';
+          ctx.fillStyle = isDark ? '#FF5A84' : '#8B1E3F';
           ctx.fill();
 
           // Pulsing halo
           const pulse = (Math.sin(tick * 0.08 + reg.lat) + 1) * 3 + 4;
           ctx.beginPath();
           ctx.arc(p.x, p.y, pulse * p.fov, 0, Math.PI * 2);
-          ctx.strokeStyle = 'rgba(139, 30, 63, 0.4)';
+          ctx.strokeStyle = isDark ? 'rgba(255, 90, 132, 0.5)' : 'rgba(139, 30, 63, 0.4)';
           ctx.lineWidth = 1;
           ctx.stroke();
 
@@ -169,7 +179,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p.x, p.y - 12);
-          ctx.strokeStyle = '#8B1E3F';
+          ctx.strokeStyle = isDark ? '#FF5A84' : '#8B1E3F';
           ctx.lineWidth = 0.8;
           ctx.stroke();
         }
@@ -187,7 +197,7 @@ export const Globe3D: React.FC<Globe3DProps> = ({ className }) => {
       window.removeEventListener('mouseup', onMouseUp);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isDark]);
 
   return (
     <div className={`relative flex flex-col items-center ${className || ''}`}>
