@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   Server,
   CloudLightning,
-  Compass
+  Compass,
+  Building2
 } from 'lucide-react';
 import { useSupabase } from '../context/SupabaseContext';
 import { ActiveView } from '../types';
@@ -33,6 +34,7 @@ export const Sidebar: React.FC = () => {
 
   const navItems: NavItem[] = [
     { id: 'landing', label: 'Home & Intro', icon: Compass },
+    { id: 'organizations', label: 'All Projects', icon: Building2 },
     { id: 'overview', label: 'Project Overview', icon: LayoutDashboard },
     { id: 'table_editor', label: 'Table Editor', icon: Table, badge: `${tables.length}` },
     { id: 'sql_editor', label: 'SQL Editor', icon: Terminal },
@@ -52,7 +54,11 @@ export const Sidebar: React.FC = () => {
       className="w-64 bg-[#FFFDF9] border-r border-[#E8DDD2] flex flex-col h-screen select-none flex-shrink-0 text-[#2B1D20]"
     >
       {/* Brand & Project Selector */}
-      <div className="p-4 border-b border-[#E8DDD2] bg-[#FFFDF9]">
+      <div 
+        onClick={() => setActiveView('organizations')}
+        className="p-4 border-b border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#FAF7F2] cursor-pointer transition-colors"
+        title="Switch organization or projects"
+      >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#8B1E3F] rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">
             C

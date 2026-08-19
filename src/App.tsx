@@ -15,6 +15,7 @@ import { RealtimeView } from './components/Realtime/RealtimeView';
 import { ObservabilityView } from './components/Observability/ObservabilityView';
 import { SettingsView } from './components/Settings/SettingsView';
 import { ApiDocsView } from './components/ApiDocs/ApiDocsView';
+import { OrganizationsView } from './components/Organizations/OrganizationsView';
 import { IntroLandingView } from './components/Landing/IntroLandingView';
 import { AuthModal } from './components/Auth/AuthModal';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
@@ -65,6 +66,8 @@ const DashboardContent: React.FC = () => {
 
   const renderActiveView = () => {
     switch (activeView) {
+      case 'organizations':
+        return <OrganizationsView />;
       case 'overview':
         return <OverviewView />;
       case 'table_editor':

@@ -1,5 +1,6 @@
 export type ActiveView = 
   | 'landing'
+  | 'organizations'
   | 'overview'
   | 'table_editor'
   | 'sql_editor'

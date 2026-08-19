@@ -16,7 +16,9 @@ import {
   Server,
   Activity,
   CheckCircle,
-  Search
+  Search,
+  Github,
+  Star
 } from 'lucide-react';
 import { useSupabase } from '../../context/SupabaseContext';
 import { Hero3DCanvas } from './Hero3DCanvas';
@@ -24,6 +26,7 @@ import { Globe3D } from './Globe3D';
 import { VectorCloud3D } from './VectorCloud3D';
 import { RealtimeWave3D } from './RealtimeWave3D';
 import { PostgresCluster3D } from './PostgresCluster3D';
+import { MegaMenuNav } from './MegaMenuNav';
 
 export const IntroLandingView: React.FC = () => {
   const { 
@@ -59,17 +62,22 @@ export const IntroLandingView: React.FC = () => {
               <span className="font-bold text-sm tracking-tight text-[#2B1D20]">chocobase</span>
             </div>
 
-            <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-[#685559]">
-              <a href="#database" className="hover:text-[#2B1D20] transition-colors">Database</a>
-              <a href="#security" className="hover:text-[#2B1D20] transition-colors">Authentication</a>
-              <a href="#edge" className="hover:text-[#2B1D20] transition-colors">Global Edge</a>
-              <a href="#realtime" className="hover:text-[#2B1D20] transition-colors">Realtime</a>
-              <a href="#ai-vector" className="hover:text-[#2B1D20] transition-colors">Vector AI</a>
-              <a href="#storage" className="hover:text-[#2B1D20] transition-colors">Storage</a>
-            </nav>
+            <MegaMenuNav />
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* GitHub Stars Indicator */}
+            <a
+              href="https://github.com/supabase/supabase"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[#E8DDD2]/80 bg-white/70 hover:bg-white/95 text-xs text-[#2B1D20] font-medium transition-all shadow-2xs"
+            >
+              <Github className="w-3.5 h-3.5 text-[#2B1D20]" />
+              <span className="font-semibold">Star on GitHub</span>
+              <span className="px-1.5 py-0.2 rounded bg-[#FAF7F2] border border-[#E8DDD2] text-[10px] text-[#685559] font-mono font-bold">108.1K</span>
+            </a>
+
             <button
               id="btn-landing-search"
               onClick={() => setIsCommandPaletteOpen(true)}
@@ -84,7 +92,7 @@ export const IntroLandingView: React.FC = () => {
             </button>
 
             <button
-              onClick={() => setActiveView('overview')}
+              onClick={() => setActiveView('organizations')}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/80 bg-white/70 hover:bg-white/90 backdrop-blur-md text-xs font-semibold text-[#2B1D20] transition-all shadow-[0_2px_8px_-2px_rgba(43,29,32,0.05),inset_0_1px_0_rgba(255,255,255,0.8)]"
             >
               <Boxes className="w-3.5 h-3.5 text-[#8B1E3F]" />
