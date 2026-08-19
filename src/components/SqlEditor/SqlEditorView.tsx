@@ -48,29 +48,71 @@ export const SqlEditorView: React.FC = () => {
   const handleRunQuery = async () => {
     if (!activeTab || !activeTab.sql.trim()) return;
     setIsRunning(true);
-
-    // Subtle async simulation for realistic query execution
-    await new Promise(r => setTimeout(r, 40));
+    const startTime = performance.now();
 
     try {
-      const result = executeSqlQuery(
-        activeTab.sql,
-        tables,
-        tableData,
-        undefined,
-        (tbl) => addNewTable(tbl)
-      );
+      let backendSuccess = false;
+      try {
+        const token = localStorage.getItem('chocobase_token') || 'anon_key_dev';
+        const res = await fetch('/v1/sql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ sql: activeTab.sql })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.status === 'ok' && json.result) {
+            const execResult = json.result;
+            const columns = execResult.columns || [];
+            const rows = (execResult.rows || []).map((rowArr: any[]) => {
+              const obj: Record<string, any> = {};
+              columns.forEach((col: string, idx: number) => {
+                obj[col] = rowArr[idx];
+              });
+              return obj;
+            });
+            const result: SqlQueryResult = {
+              columns: columns.length > 0 ? columns : ['result'],
+              rows: rows.length > 0 ? rows : [{ status: execResult.status || 'OK' }],
+              rowCount: rows.length || (execResult.modified_count !== undefined ? execResult.modified_count : 1),
+              executionTimeMs: Math.max(1, Math.round(performance.now() - startTime))
+            };
+            updateSqlTab(activeTab.id, {
+              result,
+              lastExecutedAt: new Date().toISOString(),
+              executionTimeMs: result.executionTimeMs
+            });
+            showNotification(`Live query executed in ${result.executionTimeMs}ms (${result.rowCount} rows)`);
+            backendSuccess = true;
+          }
+        }
+      } catch {
+        // Fallback to local SQL evaluator
+      }
 
-      updateSqlTab(activeTab.id, {
-        result,
-        lastExecutedAt: new Date().toISOString(),
-        executionTimeMs: result.executionTimeMs
-      });
+      if (!backendSuccess) {
+        const result = executeSqlQuery(
+          activeTab.sql,
+          tables,
+          tableData,
+          undefined,
+          (tbl) => addNewTable(tbl)
+        );
 
-      if (result.error) {
-        showNotification('SQL execution returned an error', 'error');
-      } else {
-        showNotification(`Query executed in ${result.executionTimeMs}ms (${result.rowCount} rows)`);
+        updateSqlTab(activeTab.id, {
+          result,
+          lastExecutedAt: new Date().toISOString(),
+          executionTimeMs: result.executionTimeMs
+        });
+
+        if (result.error) {
+          showNotification('SQL execution returned an error', 'error');
+        } else {
+          showNotification(`Query executed in ${result.executionTimeMs}ms (${result.rowCount} rows)`);
+        }
       }
     } catch (err: any) {
       updateSqlTab(activeTab.id, {

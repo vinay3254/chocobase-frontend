@@ -537,7 +537,44 @@ export const SupabaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const invokeEdgeFunction = async (functionId: string, payload: any): Promise<{ status: number; data: any; latencyMs: number }> => {
     const target = edgeFunctions.find(f => f.id === functionId);
     const startTime = performance.now();
-    await new Promise(r => setTimeout(r, Math.random() * 80 + 30));
+
+    try {
+      const slug = target?.slug || target?.name || functionId;
+      const token = localStorage.getItem('chocobase_token') || 'anon_key_dev';
+      const res = await fetch(`/v1/functions/${slug}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const latencyMs = Math.max(1, Math.round(performance.now() - startTime));
+        const logEntry = {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          level: 'info' as const,
+          message: `Live edge invocation completed with HTTP ${res.status} OK (${latencyMs}ms)`,
+          executionTimeMs: latencyMs,
+          statusCode: res.status,
+          ip: '127.0.0.1'
+        };
+
+        setEdgeFunctions((prev) => prev.map(f => f.id === functionId ? {
+          ...f,
+          invocationsCount: f.invocationsCount + 1,
+          recentLogs: [logEntry, ...f.recentLogs.slice(0, 19)]
+        } : f));
+
+        return { status: res.status, data, latencyMs };
+      }
+    } catch {
+      // Fallback to local sandbox runner
+    }
+
+    await new Promise(r => setTimeout(r, Math.random() * 40 + 20));
     const latencyMs = Math.round(performance.now() - startTime);
 
     let responseData: any = { message: `Executed function ${target?.name || functionId}`, timestamp: new Date().toISOString() };
