@@ -34,9 +34,47 @@ export const ObservabilityView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLiveStreaming, setIsLiveStreaming] = useState(true);
   const [selectedLogDetail, setSelectedLogDetail] = useState<TelemetryLog | null>(null);
+  const [liveLogs, setLiveLogs] = useState<TelemetryLog[]>([]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchLiveAuditLogs = async () => {
+      try {
+        const token = localStorage.getItem('chocobase_token') || 'anon_key_dev';
+        const res = await fetch('/v1/admin/audit-logs?limit=50', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const entries = data.audit_logs || data.logs || [];
+          if (Array.isArray(entries) && isMounted) {
+            const mapped: TelemetryLog[] = entries.map((entry: any) => ({
+              id: `audit-${entry.id}`,
+              timestamp: new Date((entry.created_at || Date.now() / 1000) * 1000).toISOString(),
+              service: (entry.target?.includes('storage') ? 'storage' : entry.target?.includes('auth') ? 'auth' : 'database') as any,
+              level: 'info',
+              message: `${entry.action}: ${entry.target}`,
+              metadata: entry.metadata || {}
+            }));
+            setLiveLogs(mapped);
+          }
+        }
+      } catch {
+        // standalone fallback
+      }
+    };
+
+    fetchLiveAuditLogs();
+    const interval = setInterval(fetchLiveAuditLogs, 5000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Synthesize logs from real-time events, edge function logs, and simulated postgres WAL telemetry
   const baseLogs: TelemetryLog[] = [
+    ...liveLogs,
     {
       id: 'log-seed-1',
       timestamp: new Date(Date.now() - 12000).toISOString(),
