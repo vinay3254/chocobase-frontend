@@ -20,7 +20,19 @@ import { AuthModal } from './components/Auth/AuthModal';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 const DashboardContent: React.FC = () => {
-  const { activeView, notification, clearNotification } = useSupabase();
+  const { activeView, notification, clearNotification, setIsCommandPaletteOpen } = useSupabase();
+
+  // Global Keyboard Shortcut Listener for Cmd+K (Mac) and Ctrl+K (Windows/Linux)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setIsCommandPaletteOpen]);
 
   if (activeView === 'landing') {
     return (

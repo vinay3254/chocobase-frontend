@@ -98,7 +98,7 @@ export const AuthModal: React.FC = () => {
             <div className="w-7 h-7 rounded-lg bg-[#8B1E3F] flex items-center justify-center text-white shadow-xs">
               <Zap className="w-3.5 h-3.5 fill-current" />
             </div>
-            <span className="font-bold text-sm text-[#2B1D20] tracking-tight">supabase</span>
+            <span className="font-bold text-sm text-[#2B1D20] tracking-tight">chocobase</span>
           </div>
 
           <h2 className="text-sm font-bold text-[#2B1D20]">

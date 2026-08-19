@@ -55,7 +55,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-b border-[#E8DDD2] bg-[#FFFDF9]">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#8B1E3F] rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">
-            S
+            C
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">

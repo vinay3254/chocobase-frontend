@@ -37,12 +37,12 @@ export const ConnectModal: React.FC = () => {
     e.preventDefault();
     if (connectionMode === 'remote') {
       if (!remoteUrl.trim()) {
-        setErrorMessage('Please provide a valid Supabase Project URL (e.g., https://xyz.supabase.co)');
+        setErrorMessage('Please provide a valid Chocobase Project URL (e.g., https://xyz.supabase.co)');
         setTestStatus('error');
         return;
       }
       if (!remoteAnonKey.trim()) {
-        setErrorMessage('Please provide your Supabase anon public API key');
+        setErrorMessage('Please provide your Chocobase anon public API key');
         setTestStatus('error');
         return;
       }
@@ -64,15 +64,15 @@ export const ConnectModal: React.FC = () => {
         updateProjectSettings({
           apiUrl: remoteUrl.trim(),
           anonKey: remoteAnonKey.trim(),
-          name: remoteUrl.split('.')[0].replace(/^https?:\/\//, '') || 'remote-supabase-db'
+          name: remoteUrl.split('.')[0].replace(/^https?:\/\//, '') || 'remote-chocobase-db'
         });
 
         setTestStatus('success');
-        showNotification('Successfully connected to remote Supabase project!');
+        showNotification('Successfully connected to remote Chocobase project!');
         setTimeout(() => setIsConnectModalOpen(false), 800);
       } catch (err: any) {
         setTestStatus('error');
-        setErrorMessage(err?.message || 'Failed to ping target Supabase host');
+        setErrorMessage(err?.message || 'Failed to ping target Chocobase host');
       }
     } else {
       setConnectionMode('sandbox');
@@ -100,7 +100,7 @@ export const ConnectModal: React.FC = () => {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-[#2B1D20]">Database Connection Target</h2>
-              <p className="text-[11px] text-[#685559]">Configure your personal Supabase or use the built-in sandbox</p>
+              <p className="text-[11px] text-[#685559]">Configure your personal Chocobase or use the built-in sandbox</p>
             </div>
           </div>
           <button

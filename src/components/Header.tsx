@@ -49,18 +49,6 @@ export const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Keyboard shortcut for Cmd+K / Ctrl+K
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen(true);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setIsCommandPaletteOpen]);
-
   const viewTitles: Record<string, string> = {
     landing: 'Home & Showcase',
     overview: 'Project Overview',
@@ -121,7 +109,7 @@ export const Header: React.FC = () => {
         <button
           onClick={() => setActiveView('landing')}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E8DDD2] bg-[#FAF7F2] hover:bg-[#F4EFEA] text-[12px] font-semibold text-[#8B1E3F] transition-colors shadow-2xs"
-          title="View the Supabase Intro Landing Page"
+          title="View the Chocobase Intro Landing Page"
         >
           <Compass className="w-3.5 h-3.5" />
           <span className="hidden md:inline">Intro & Showcase</span>

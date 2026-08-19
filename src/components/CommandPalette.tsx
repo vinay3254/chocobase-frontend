@@ -116,7 +116,8 @@ export const CommandPalette: React.FC = () => {
   );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' || ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K'))) {
+      e.preventDefault();
       setIsCommandPaletteOpen(false);
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
