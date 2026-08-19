@@ -51,7 +51,7 @@ export const IntroLandingView: React.FC = () => {
 
       {/* Top Navbar */}
       <header className="sticky top-0 z-40 w-full border-b border-[#E8DDD2] bg-[#FAF7F2]/90 backdrop-blur-xl transition-colors">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between">
+        <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div 
               onClick={() => setActiveView('landing')} 
@@ -140,29 +140,29 @@ export const IntroLandingView: React.FC = () => {
       </header>
 
       {/* 3D Hero Section */}
-      <section className="pt-10 pb-16 px-4 sm:px-6 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <section className="pt-10 pb-16 px-4 sm:px-8 lg:px-12 w-full max-w-[1600px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
           
           {/* Left Column: Vision & Actions */}
-          <div className="lg:col-span-5 space-y-5 text-center lg:text-left">
+          <div className="lg:col-span-5 space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFFDF9] border border-[#E8DDD2] text-xs font-medium text-[#685559] shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#8B1E3F]" />
               <span>Next-Gen Database Platform</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-[#2B1D20] tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-5xl xl:text-6xl font-extrabold text-[#2B1D20] tracking-tight leading-tight">
               Build in a weekend <br />
               <span className="text-[#8B1E3F]">Scale to millions</span>
             </h1>
 
-            <p className="text-sm text-[#685559] leading-relaxed">
+            <p className="text-sm sm:text-base text-[#685559] leading-relaxed max-w-xl">
               Full-featured PostgreSQL with built-in authentication, instant APIs, global edge functions, realtime data sync, and vector search.
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
               <button
                 onClick={() => openAuthModal('signup')}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white transition-all shadow-[0_4px_16px_-4px_rgba(139,30,63,0.35)] hover:shadow-[0_8px_20px_-4px_rgba(139,30,63,0.45)] hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B1E3F] hover:bg-[#721833] text-xs sm:text-sm font-semibold text-white transition-all shadow-[0_4px_16px_-4px_rgba(139,30,63,0.35)] hover:shadow-[0_8px_20px_-4px_rgba(139,30,63,0.45)] hover:-translate-y-0.5"
               >
                 <span>Start your project</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -170,31 +170,31 @@ export const IntroLandingView: React.FC = () => {
 
               <button
                 onClick={() => setActiveView('overview')}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs font-semibold text-[#2B1D20] transition-all shadow-2xs hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E8DDD2] bg-[#FFFDF9] hover:bg-[#F4EFEA] text-xs sm:text-sm font-semibold text-[#2B1D20] transition-all shadow-2xs hover:-translate-y-0.5"
               >
                 <span>Launch Studio</span>
               </button>
             </div>
 
             {/* Metrics */}
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#E8DDD2]">
+            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#E8DDD2]">
               <div>
-                <div className="text-lg font-bold text-[#2B1D20]">99.99%</div>
-                <div className="text-[11px] text-[#685559]">Uptime SLA</div>
+                <div className="text-xl sm:text-2xl font-bold text-[#2B1D20]">99.99%</div>
+                <div className="text-[11px] sm:text-xs text-[#685559]">Uptime SLA</div>
               </div>
               <div>
-                <div className="text-lg font-bold text-[#2B1D20]">&lt;10ms</div>
-                <div className="text-[11px] text-[#685559]">Edge Latency</div>
+                <div className="text-xl sm:text-2xl font-bold text-[#2B1D20]">&lt;10ms</div>
+                <div className="text-[11px] sm:text-xs text-[#685559]">Edge Latency</div>
               </div>
               <div>
-                <div className="text-lg font-bold text-[#2B1D20]">1M+</div>
-                <div className="text-[11px] text-[#685559]">Active DBs</div>
+                <div className="text-xl sm:text-2xl font-bold text-[#2B1D20]">1M+</div>
+                <div className="text-[11px] sm:text-xs text-[#685559]">Active DBs</div>
               </div>
             </div>
           </div>
 
           {/* Right Column: 3D Interactive Canvas with Clean Housing */}
-          <div className="lg:col-span-7 h-[420px] rounded-3xl bg-[#FFFDF9] border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden relative group">
+          <div className="lg:col-span-7 h-[440px] lg:h-[500px] xl:h-[540px] rounded-3xl bg-[#FFFDF9] border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out overflow-hidden relative group w-full">
             {/* Dynamic Inner Highlight with subtle shift */}
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(139,30,63,0.06)_0%,transparent_65%)] opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
             <Hero3DCanvas />
@@ -203,8 +203,8 @@ export const IntroLandingView: React.FC = () => {
       </section>
 
       {/* Fast Growing Companies Strip */}
-      <section className="border-y border-[#E8DDD2] bg-[#FAF7F2] py-5 px-4">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-6 text-xs font-bold text-[#685559] tracking-wider">
+      <section className="border-y border-[#E8DDD2] bg-[#FAF7F2] py-6 px-4 sm:px-8 lg:px-12 w-full">
+        <div className="w-full max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-6 sm:gap-8 text-xs sm:text-sm font-bold text-[#685559] tracking-wider uppercase">
           <span>LOVABLE</span>
           <span>MOZILLA</span>
           <span>PWC</span>
@@ -217,7 +217,7 @@ export const IntroLandingView: React.FC = () => {
       </section>
 
       {/* Interactive 3D Architecture Pillars */}
-      <section className="py-16 px-4 sm:px-6 max-w-6xl mx-auto space-y-6">
+      <section className="py-16 px-4 sm:px-8 lg:px-12 w-full max-w-[1600px] mx-auto space-y-6">
         
         <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
           <h2 className="text-2xl font-extrabold text-[#2B1D20]">Platform Architecture</h2>
@@ -415,10 +415,10 @@ export const IntroLandingView: React.FC = () => {
       </section>
 
       {/* Production Starter Systems */}
-      <section className="py-12 px-4 sm:px-6 max-w-5xl mx-auto space-y-5">
+      <section className="py-12 px-4 sm:px-8 lg:px-12 w-full max-w-[1600px] mx-auto space-y-5">
         <h2 className="text-base font-bold text-[#2B1D20]">Production Starters</h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
             { title: 'SaaS Billing & Subscriptions', desc: 'Pre-configured customer portal and auth state.' },
             { title: 'Enterprise Portal', desc: 'Multi-tenant workspaces with role-based policies.' },
@@ -430,7 +430,7 @@ export const IntroLandingView: React.FC = () => {
             <div 
               key={idx}
               onClick={() => openAuthModal('signup')}
-              className="relative p-4 rounded-xl bg-[#FFFDF9] hover:bg-[#FAF7F2] border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-xs hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+              className="relative p-5 rounded-2xl bg-[#FFFDF9] hover:bg-[#FAF7F2] border border-[#E8DDD2] hover:border-[#8B1E3F]/40 shadow-xs hover:shadow-sm hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
             >
               <div className="relative z-10">
                 <h3 className="text-xs font-bold text-[#2B1D20] group-hover:text-[#8B1E3F] transition-colors">
@@ -444,23 +444,23 @@ export const IntroLandingView: React.FC = () => {
       </section>
 
       {/* Bottom CTA with Floating Card */}
-      <section className="py-14 px-4">
-        <div className="group max-w-3xl mx-auto rounded-3xl bg-[#FFFDF9] border border-[#E8DDD2] hover:border-[#8B1E3F]/35 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out p-8 sm:p-10 text-center relative overflow-hidden">
-          <div className="relative z-10 max-w-xl mx-auto space-y-4">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2B1D20] tracking-tight">
+      <section className="py-14 px-4 sm:px-8 lg:px-12 w-full">
+        <div className="group max-w-5xl 2xl:max-w-6xl mx-auto rounded-3xl bg-[#FFFDF9] border border-[#E8DDD2] hover:border-[#8B1E3F]/35 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ease-out p-8 sm:p-12 text-center relative overflow-hidden">
+          <div className="relative z-10 max-w-2xl mx-auto space-y-5">
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-[#2B1D20] tracking-tight">
               Build in a weekend, scale to millions
             </h2>
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => openAuthModal('signup')}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#8B1E3F] hover:bg-[#721833] text-xs font-semibold text-white shadow-[0_4px_16px_-4px_rgba(139,30,63,0.35)] hover:shadow-[0_8px_20px_-4px_rgba(139,30,63,0.45)] hover:-translate-y-0.5 transition-all"
+                className="flex items-center gap-1.5 px-6 py-3 rounded-xl bg-[#8B1E3F] hover:bg-[#721833] text-xs sm:text-sm font-semibold text-white shadow-[0_4px_16px_-4px_rgba(139,30,63,0.35)] hover:shadow-[0_8px_20px_-4px_rgba(139,30,63,0.45)] hover:-translate-y-0.5 transition-all"
               >
                 <span>Start your project</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setActiveView('overview')}
-                className="px-4 py-2.5 rounded-xl border border-[#E8DDD2] bg-[#FAF7F2] hover:bg-[#F4EFEA] text-xs font-semibold text-[#2B1D20] shadow-2xs hover:-translate-y-0.5 transition-all"
+                className="px-5 py-3 rounded-xl border border-[#E8DDD2] bg-[#FAF7F2] hover:bg-[#F4EFEA] text-xs sm:text-sm font-semibold text-[#2B1D20] shadow-2xs hover:-translate-y-0.5 transition-all"
               >
                 Launch Studio
               </button>
@@ -485,8 +485,8 @@ export const IntroLandingView: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#E8DDD2]/70 bg-[#FAF7F2]/80 backdrop-blur-md py-8 px-4 sm:px-6 text-xs text-[#685559]">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-[#E8DDD2]/70 bg-[#FAF7F2]/80 backdrop-blur-md py-8 px-4 sm:px-8 lg:px-12 text-xs text-[#685559] w-full">
+        <div className="w-full max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-[#8B1E3F] text-white flex items-center justify-center text-[9px] font-bold">
               <Zap className="w-2.5 h-2.5 fill-current" />
