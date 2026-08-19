@@ -687,7 +687,23 @@ serve(async (req) => {
     setIsAuthModalOpen(false);
   };
 
-  const signIn = async (email: string, _password?: string, provider = 'email'): Promise<boolean> => {
+  const signIn = async (email: string, password = 'password123', provider = 'email'): Promise<boolean> => {
+    try {
+      const res = await fetch('/v1/auth/token?grant_type=password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          localStorage.setItem('chocobase_token', data.access_token);
+        }
+      }
+    } catch {
+      // Standalone mode fallback
+    }
+
     const existing = authUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
     const userObj: CurrentUser = {
       id: existing ? existing.id : `usr-${Date.now()}`,
@@ -704,7 +720,23 @@ serve(async (req) => {
     return true;
   };
 
-  const signUp = async (email: string, _password?: string, provider = 'email'): Promise<boolean> => {
+  const signUp = async (email: string, password = 'password123', provider = 'email'): Promise<boolean> => {
+    try {
+      const res = await fetch('/v1/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password, role: 'authenticated' })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          localStorage.setItem('chocobase_token', data.access_token);
+        }
+      }
+    } catch {
+      // Standalone mode fallback
+    }
+
     const newId = `usr-${Date.now()}`;
     const newUser: AuthUser = {
       id: newId,
@@ -733,13 +765,14 @@ serve(async (req) => {
     setCurrentUser(userObj);
     localStorage.setItem('chocobase_current_user', JSON.stringify(userObj));
     setIsAuthModalOpen(false);
-    showNotification(`Account created! Welcome to Supabase, ${email}.`);
+    showNotification(`Account created! Welcome to ChocoBase, ${email}.`);
     return true;
   };
 
   const signOut = () => {
     setCurrentUser(null);
     localStorage.removeItem('chocobase_current_user');
+    localStorage.removeItem('chocobase_token');
     showNotification('Signed out successfully', 'info');
     setActiveView('landing');
   };
