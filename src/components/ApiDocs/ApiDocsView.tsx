@@ -53,7 +53,7 @@ const frameworks: FrameworkQuickstart[] = [
 ];
 
 export const ApiDocsView: React.FC = () => {
-  const { tables, projectSettings, setNotification, setIsCommandPaletteOpen } = useSupabase();
+  const { tables, projectSettings, showNotification, setIsCommandPaletteOpen } = useSupabase();
   const [docTab, setDocTab] = useState<'getting_started' | 'api_reference' | 'ai_tools'>('getting_started');
   const [selectedFramework, setSelectedFramework] = useState<FrameworkQuickstart>(frameworks[0]);
   const [selectedTableId, setSelectedTableId] = useState<string>(tables[0]?.id || 'tbl-posts');
@@ -66,10 +66,7 @@ export const ApiDocsView: React.FC = () => {
   const copyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
     setCopiedKey(id);
-    setNotification({
-      type: 'success',
-      message: 'Snippet copied to clipboard'
-    });
+    showNotification('Snippet copied to clipboard');
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
