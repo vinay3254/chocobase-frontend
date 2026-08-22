@@ -405,7 +405,7 @@ export const ApiDocsView: React.FC = () => {
               <button
                 onClick={() => {
                   setFeedbackGiven(true);
-                  setNotification({ type: 'success', message: 'Thanks for your feedback!' });
+                  showNotification('Thanks for your feedback!', 'success');
                 }}
                 className={`p-2 rounded-lg border border-[#E8DDD2] transition-colors ${feedbackGiven === true ? 'bg-[#EFF7F3] text-[#286E4F]' : 'bg-[#FAF7F2] text-[#685559] hover:text-[#2B1D20]'}`}
               >
@@ -414,7 +414,7 @@ export const ApiDocsView: React.FC = () => {
               <button
                 onClick={() => {
                   setFeedbackGiven(false);
-                  setNotification({ type: 'info', message: 'We appreciate your input and will improve this doc.' });
+                  showNotification('We appreciate your input and will improve this doc.', 'info');
                 }}
                 className={`p-2 rounded-lg border border-[#E8DDD2] transition-colors ${feedbackGiven === false ? 'bg-[#FDF0F3] text-[#8B1E3F]' : 'bg-[#FAF7F2] text-[#685559] hover:text-[#2B1D20]'}`}
               >

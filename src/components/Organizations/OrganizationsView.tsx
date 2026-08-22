@@ -41,40 +41,13 @@ export const OrganizationsView: React.FC = () => {
 
   const [projects, setProjects] = useState<ProjectCardData[]>([
     {
-      id: 'medicluster',
-      name: 'medicluster',
-      provider: 'AWS',
-      region: 'ap-southeast-1',
-      compute: 'NANO',
+      id: projectSettings.id || 'chocobase-production',
+      name: projectSettings.name || 'chocobase-production',
+      provider: 'Local / Self-Hosted',
+      region: projectSettings.region || '127.0.0.1:8080',
+      compute: 'NATIVE',
       status: 'active',
-      createdAt: '2 weeks ago'
-    },
-    {
-      id: 'pragna-chatbot',
-      name: 'pragna-chatbot',
-      provider: 'AWS',
-      region: 'ap-south-1',
-      compute: 'NANO',
-      status: 'paused',
-      createdAt: '1 month ago'
-    },
-    {
-      id: 'pragna-chatbot-uswest',
-      name: 'pragna-chatbot-uswest',
-      provider: 'AWS',
-      region: 'us-west-1',
-      compute: 'NANO',
-      status: 'active',
-      createdAt: '2 months ago'
-    },
-    {
-      id: 'whatsapp-messenger',
-      name: 'whatsapp-messenger',
-      provider: 'AWS',
-      region: 'ap-south-1',
-      compute: 'NANO',
-      status: 'paused',
-      createdAt: '3 months ago'
+      createdAt: 'Active instance'
     }
   ]);
 
@@ -83,7 +56,6 @@ export const OrganizationsView: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'created'>('name');
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
-  const [isNoticeVisible, setIsNoticeVisible] = useState(true);
 
   // New Project Form State
   const [newProjectName, setNewProjectName] = useState('');
@@ -170,9 +142,9 @@ export const OrganizationsView: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#2B1D20]">vinay3254's Org</h1>
+              <h1 className="text-xl font-bold text-[#2B1D20]">{projectSettings.organization || 'Personal Workspace'}</h1>
               <span className="px-2 py-0.5 rounded-full bg-[#F4EFEA] border border-[#E8DDD2] text-[10px] font-bold text-[#685559] uppercase tracking-wider">
-                Free Plan • {projects.length} projects
+                {projectSettings.tier || 'Free'} Plan • {projects.length} {projects.length === 1 ? 'project' : 'projects'}
               </span>
             </div>
             <p className="text-xs text-[#685559] mt-0.5">Manage Postgres clusters, compute resources, and project branches.</p>
@@ -352,8 +324,8 @@ export const OrganizationsView: React.FC = () => {
           <div className="bg-[#FFFDF9] border border-[#E8DDD2] rounded-2xl p-6 shadow-xs space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-sm text-[#2B1D20]">Free plan usage</h3>
-                <p className="text-[11px] text-[#685559]">Current billing cycle</p>
+                <h3 className="font-bold text-sm text-[#2B1D20]">Plan usage</h3>
+                <p className="text-[11px] text-[#685559]">Current instance quota</p>
               </div>
               <button 
                 onClick={() => {
@@ -374,10 +346,10 @@ export const OrganizationsView: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold uppercase tracking-wider text-[10px] text-[#9B888C]">EGRESS</span>
-                  <span className="font-mono text-[#2B1D20]">3 MB / 5 GB</span>
+                  <span className="font-mono text-[#2B1D20]">0 MB / 5 GB</span>
                 </div>
                 <div className="h-1.5 w-full bg-[#F4EFEA] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#8B1E3F] w-[2%] rounded-full" />
+                  <div className="h-full bg-[#8B1E3F] w-[0%] rounded-full" />
                 </div>
               </div>
 
@@ -385,10 +357,10 @@ export const OrganizationsView: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold uppercase tracking-wider text-[10px] text-[#9B888C]">DATABASE SIZE</span>
-                  <span className="font-mono text-[#2B1D20]">27 MB / 500 MB</span>
+                  <span className="font-mono text-[#2B1D20]">0.1 MB / 500 MB</span>
                 </div>
                 <div className="h-1.5 w-full bg-[#F4EFEA] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#8B1E3F] w-[5.4%] rounded-full" />
+                  <div className="h-full bg-[#8B1E3F] w-[0.1%] rounded-full" />
                 </div>
               </div>
 
@@ -396,10 +368,10 @@ export const OrganizationsView: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-semibold uppercase tracking-wider text-[10px] text-[#9B888C]">MONTHLY ACTIVE USERS</span>
-                  <span className="font-mono text-[#2B1D20]">3 / 50,000</span>
+                  <span className="font-mono text-[#2B1D20]">0 / 50,000</span>
                 </div>
                 <div className="h-1.5 w-full bg-[#F4EFEA] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#8B1E3F] w-[1%] rounded-full" />
+                  <div className="h-full bg-[#8B1E3F] w-[0%] rounded-full" />
                 </div>
               </div>
 
@@ -417,39 +389,6 @@ export const OrganizationsView: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Terms Notice Toast Bottom Right */}
-      {isNoticeVisible && (
-        <div className="fixed bottom-6 right-6 z-30 max-w-sm p-4 rounded-2xl bg-[#FFFDF9] border border-[#E8DDD2] shadow-2xl text-xs space-y-2 animate-in fade-in slide-in-from-bottom-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9B888C]">NOTICE</span>
-            <button
-              onClick={() => setIsNoticeVisible(false)}
-              className="text-[#9B888C] hover:text-[#2B1D20] p-0.5 rounded"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <h4 className="font-bold text-[#2B1D20]">We're updating our Terms of Service</h4>
-          <p className="text-[#685559] text-[11px] leading-relaxed">
-            Our Data Processing Addendum is now built into the Terms, effective August 1, 2026.
-          </p>
-          <div>
-            <button
-              onClick={() => {
-                setNotification({
-                  type: 'info',
-                  message: 'Terms of Service updated. Zero customer telemetry policy active.'
-                });
-                setIsNoticeVisible(false);
-              }}
-              className="px-3 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#F4EFEA] border border-[#E8DDD2] text-[11px] font-semibold text-[#2B1D20]"
-            >
-              Learn more
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* New Project Provisioning Modal */}
       {isNewProjectModalOpen && (

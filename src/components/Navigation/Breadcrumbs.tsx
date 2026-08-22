@@ -91,16 +91,11 @@ export const Breadcrumbs: React.FC = () => {
   };
 
   const availableProjects = [
-    { id: 'medicluster', name: 'medicluster', region: 'ap-southeast-1', tier: 'Pro Plan', status: 'active' },
-    { id: 'pragna-chatbot', name: 'pragna-chatbot', region: 'ap-south-1', tier: 'Free Tier', status: 'paused' },
-    { id: 'pragna-chatbot-uswest', name: 'pragna-chatbot-uswest', region: 'us-west-1', tier: 'Pro Plan', status: 'active' },
-    { id: 'whatsapp-messenger', name: 'whatsapp-messenger', region: 'eu-central-1', tier: 'Free Tier', status: 'active' },
+    { id: projectSettings.id, name: projectSettings.name, region: projectSettings.region, tier: `${projectSettings.tier} Plan`, status: 'active' },
   ];
 
   const organizations = [
-    { id: 'vinay3254', name: "vinay3254's Org", plan: 'Team Plan', projectsCount: 4 },
-    { id: 'enterprise-core', name: 'MedGlobal Health', plan: 'Enterprise', projectsCount: 12 },
-    { id: 'personal-sandbox', name: 'Personal Dev', plan: 'Free', projectsCount: 1 },
+    { id: 'org-personal', name: projectSettings.organization || 'Personal Workspace', plan: `${projectSettings.tier} Plan`, projectsCount: availableProjects.length },
   ];
 
   // Resolve Sub-item Crumb
@@ -192,7 +187,7 @@ export const Breadcrumbs: React.FC = () => {
 
   // Construct readable path for clipboard copying
   const fullPathSegments = [
-    "vinay3254's Org",
+    projectSettings.organization || 'Personal Workspace',
     projectSettings.name,
     viewConfigs[activeView]?.label || activeView,
     ...(subItemName ? [subItemName] : [])
@@ -233,7 +228,7 @@ export const Breadcrumbs: React.FC = () => {
         >
           <Building2 className="w-3.5 h-3.5 text-[#8B1E3F] flex-shrink-0" />
           <span className="truncate max-w-[110px] sm:max-w-[130px] font-semibold text-[#2B1D20]">
-            vinay3254's Org
+            {projectSettings.organization || 'Personal Workspace'}
           </span>
           <ChevronDown className={`w-3 h-3 text-[#9C888C] transition-transform duration-150 ${activeDropdown === 'org' ? 'rotate-180' : ''}`} />
         </button>
@@ -252,7 +247,7 @@ export const Breadcrumbs: React.FC = () => {
                   setActiveView('organizations');
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 text-left text-xs transition-colors ${
-                  org.id === 'vinay3254' ? 'bg-[#FAF7F2] text-[#8B1E3F] font-semibold' : 'text-[#2B1D20] hover:bg-[#FAF7F2]'
+                  org.name === (projectSettings.organization || 'Personal Workspace') ? 'bg-[#FAF7F2] text-[#8B1E3F] font-semibold' : 'text-[#2B1D20] hover:bg-[#FAF7F2]'
                 }`}
               >
                 <div className="flex items-center gap-2">
